@@ -12,7 +12,14 @@ Point3D operator+(const Point3D &lhs, const Point3D &rhs)
 
 Point3D operator-(const Point3D &lhs, const Point3D &rhs)
 {
-    return Point3D(lhs.x + rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+    return Point3D(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+}
+
+bool operator==(const Point3D &lhs, const Point3D &rhs)
+{
+    return lhs.x == rhs.x &&
+           lhs.y == rhs.y &&
+           lhs.z == rhs.z;
 }
 
 Point3D operator*(const Point3D &lhs, float rhs)
@@ -40,4 +47,10 @@ std::ostream& operator<<(std::ostream &os, const Point3D &point)
     return os << "x = "   << point.x << 
                  ", y = " << point.y << 
                  ", z = " << point.z << "\n";
+}
+
+std::istream& operator>>(std::istream &in, Point3D &point)
+{
+    in >> point.x >> point.y >> point.z;
+    return in;
 }

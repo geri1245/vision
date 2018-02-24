@@ -1,17 +1,16 @@
-#include "repr/point.h"
-#include "input/input.h"
+#include "init.h"
+#include "repr/debug.hpp"
+#include "repr/input.h"
 
-#include <iostream>
-#include <vector>
-
-int main(int argc, char* argv[])
+int main()
 {
-    Point3D a(4, 5, 7);
-    Point3D b(1, 2, 11);
+    //initialize();
 
-    std::vector<int> v;
+    InputReader ir("../data/test1.asd");
 
-    std::cout << a + b;
+    std::vector<Point3D> points{ir.get_points()};
+
+    print(points);
 
     return 0;
 }
