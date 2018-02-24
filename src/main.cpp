@@ -4,13 +4,7 @@
 
 int main()
 {
-    //initialize();
-
-    InputReader ir("../data/test1.asd");
-
-    std::vector<Point3D> points{ir.get_points()};
-
-    print(points);
+    initialize();
 
     return 0;
 }
