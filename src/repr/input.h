@@ -11,7 +11,7 @@ class InputReader
 {
 public:
 
-    InputReader(const std::string &filename_, int size = 10000);
+    InputReader(const std::string &filename_, int size = 40000);
     ~InputReader();
     std::vector<Point3D> get_points();
 

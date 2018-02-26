@@ -5,6 +5,11 @@ Point3D::Point3D(float x_, float y_, float z_) :
 
 Point3D::~Point3D() {}
 
+Point3D::operator glm::vec3() const
+{
+    return glm::vec3{x, y, z};
+}
+
 Point3D operator+(const Point3D &lhs, const Point3D &rhs)
 {
     return Point3D(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);

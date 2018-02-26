@@ -4,10 +4,14 @@
 #include <iostream>
 #include <fstream>
 
+#include <glm/glm.hpp>
+
 struct Point3D
 {
     Point3D(float x_ = 0.f, float y_ = 0.f, float z_ = 0.f);
     ~Point3D();
+
+    operator glm::vec3() const;
 
     float x, y, z;
 };

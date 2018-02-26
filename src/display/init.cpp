@@ -13,7 +13,7 @@
 #include "displayer.h"
 #include "init.h"
 
-int initialize()
+int init_display()
 {
 	if ( SDL_Init( SDL_INIT_VIDEO ) == -1 )
 	{
@@ -104,7 +104,6 @@ int initialize()
 	bool quit = false;
 	SDL_Event ev;
 	
-	// alkalmazas példánya
 	Displayer displayer;
 	if (!displayer.init())
 	{
@@ -139,8 +138,6 @@ int initialize()
 		SDL_GL_SwapWindow(win);
 	}
 
-	
-    
     displayer.clean();
 
 	SDL_GL_DeleteContext(context);

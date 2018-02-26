@@ -1,6 +1,6 @@
 #ifndef INIT_H
 #define INIT_H
 
-int initialize();
+int init_display();
 
 #endif

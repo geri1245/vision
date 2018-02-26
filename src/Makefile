@@ -1,5 +1,5 @@
 cc = g++
-cflags = -lSDL2 -lSDL2main -lGL -lGLU -lGLEW -Wall -Wextra -std=c++17
+cflags = -lSDL2 -lSDL2main -lGL -lGLU -lglut -lGLEW -Wall -Wextra -std=c++17
 SOURCEDIR = .
 BUILDDIR  = ../build
 
@@ -24,4 +24,4 @@ test :
 
 .PHONY : clean
 clean :
-	-rm -f input/*.o repr/*.o test/*.o *.o main
+	-rm -f input/*.o repr/*.o test/*.o display/*.o *.o main
