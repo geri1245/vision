@@ -3,9 +3,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <math.h>
 
-gCamera::gCamera() : eye(0.0f, 20.0f, 20.0f), at(0.0f), up(0.0f, 1.0f, 0.0f), speed(16.0f), goFw(0), goRight(0), slow(false)
+gCamera::gCamera() : eye(0.0f, 20.0f, -20.0f), at(0.0f), up(0.0f, 1.0f, 0.0f), speed(16.0f), goFw(0), goRight(0), slow(false)
 {
-	SetView( glm::vec3(0,20,20), glm::vec3(0,0,0), glm::vec3(0,1,0));
+	SetView( glm::vec3(0, 20, -20), glm::vec3(0,0,0), glm::vec3(0,1,0));
 
 	dist = glm::length( at - eye );	
 

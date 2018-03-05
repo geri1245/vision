@@ -74,7 +74,7 @@ Displayer::Displayer()
 
 	prev_tick = SDL_GetTicks();
 
-	camera.SetView(glm::vec3(5, 5, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	//camera.SetView(glm::vec3(50, -8, -200), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 }
 
 
@@ -95,6 +95,23 @@ bool Displayer::init()
 	glBindVertexArray(vaoID);
 	
 	glGenBuffers(1, &vboID); 
+
+	InputReader in("../data/2/fusioned_no_color.xyz");
+	frame_points = in.get_points();
+	num_points = frame_points.size();
+	frame_vertices.reserve(num_points);
+
+	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
+		[](const Point3D &p)
+		{
+			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
+		});
+	
+	glBindBuffer(GL_ARRAY_BUFFER, vboID);
+	glBufferData( GL_ARRAY_BUFFER,
+				  num_points * sizeof(Vertex),
+				  frame_vertices.data(),
+				  GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
@@ -150,6 +167,7 @@ bool Displayer::init()
 	MVP_loc = glGetUniformLocation(programID, "MVP");
 
 	input_reader.set_path("../data", "fusioned_no_color.xyz");
+	input_reader.step();
 
 	return true;
 }
@@ -176,8 +194,6 @@ void Displayer::update()
 	num_points = frame_points.size();
 	frame_vertices.reserve(num_points);
 
-	std::cout << frame_points[0] << "\n";
-
 	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
 		[](const Point3D &p)
 		{
@@ -190,7 +206,10 @@ void Displayer::update()
 				  frame_vertices.data(),
 				  GL_STATIC_DRAW);
 
-	input_reader.step();
+	quit = !input_reader.step();
+
+	if(quit)
+		exit(0);
 }
 
 
