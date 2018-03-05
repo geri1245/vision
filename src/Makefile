@@ -1,21 +1,20 @@
 cc = g++
-cflags = -lSDL2 -lSDL2main -lGL -lGLU -lglut -lGLEW -Wall -Wextra -std=c++17
+libs = -lSDL2 -lSDL2main -lGL -lGLU -lglut -lGLEW -lstdc++fs
+cflags = -Wall -Wextra -std=c++17
+
 SOURCEDIR = .
 BUILDDIR  = ../build
 
-#deps = repr/input.o repr/point.o 
-
 cpps = $(shell find -not -path "./test/*" -name '*.cpp')
-#local_objects := $(addprefix $(BUILDDIR)/,$(SOURCES:%.c=%.o))
 objects := $(cpps:%.cpp=%.o)
 
 
 .PHONY : all
 all : $(objects)
-	$(cc) $(objects) -o main $(cflags)
+	$(cc) $(objects) -o main $(libs) $(cflags)
 
 $(objects) : %.o : %.cpp
-	$(cc) -c $< -o $@ $(cflags)
+	$(cc) -c $< -o $@ $(libs) $(cflags)
 
 .PHONY : test
 test :
@@ -24,4 +23,4 @@ test :
 
 .PHONY : clean
 clean :
-	-rm -f input/*.o repr/*.o test/*.o display/*.o *.o main
+	-rm -f input/*.o util/*.o test/*.o display/*.o *.o main

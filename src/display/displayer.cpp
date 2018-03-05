@@ -66,7 +66,7 @@ GLuint load_shader(GLenum shader_type, const std::string &filename)
 
 }
 
-Displayer::Displayer(void)
+Displayer::Displayer()
 {
 	vaoID     = 0;
 	vboID     = 0;
@@ -78,7 +78,7 @@ Displayer::Displayer(void)
 }
 
 
-Displayer::~Displayer(void)
+Displayer::~Displayer()
 {
 }
 
