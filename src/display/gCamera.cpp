@@ -113,7 +113,6 @@ void gCamera::KeyboardDown(SDL_KeyboardEvent& key)
 
 void gCamera::KeyboardUp(SDL_KeyboardEvent& key)
 {
-	float current_speed = m_speed;
 	switch ( key.keysym.sym )
 	{
 	case SDLK_LSHIFT:
