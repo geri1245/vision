@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 #include "../repr/point.h"
+#include "gCamera.h"
 
 struct Vertex
 {
@@ -33,11 +34,14 @@ public:
 
 private:
 	void key_down(SDL_KeyboardEvent& ev);
-	void mouse_down(SDL_MouseButtonEvent& ev);
+	void key_up(SDL_KeyboardEvent& ev);
+	//void mouse_down(SDL_MouseButtonEvent& ev);
+	//void mouse_up(SDL_MouseButtonEvent& ev);
 	void mouse_move(SDL_MouseMotionEvent& ev);
 	void resize_window(int width, int height);
 
 	int num_points;
+	Uint32 prev_tick;
 
 	std::vector<Point3D> frame_points;
 	std::vector<Vertex>  frame_vertices;
@@ -46,6 +50,11 @@ private:
 
 	GLuint vaoID;
 	GLuint vboID;
+
+	GLuint MVP_loc;
+	glm::mat4 MVP;
+
+	gCamera camera;
 
 	int mouse_x;
 	int mouse_y;

@@ -71,6 +71,10 @@ Displayer::Displayer(void)
 	vaoID     = 0;
 	vboID     = 0;
 	programID = 0;
+
+	prev_tick = SDL_GetTicks();
+
+	camera.SetView(glm::vec3(5, 5, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 }
 
 
@@ -82,7 +86,9 @@ bool Displayer::init()
 {
 	glClearColor(0.125f, 0.25f, 0.5f, 1.0f);
 
-	glEnable(GL_CULL_FACE);
+	glPointSize(10.0f);
+
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	//TODO: Move this to update
@@ -97,7 +103,7 @@ bool Displayer::init()
 	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
 		[](const Point3D &p)
 		{
-			return Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 0.0, 0.0} };
+			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
 		});
 
 	glGenVertexArrays(1, &vaoID);
@@ -160,6 +166,10 @@ bool Displayer::init()
 	glDeleteShader( vs_ID );
 	glDeleteShader( fs_ID );
 
+	camera.SetProj(45.0f, 640.0f / 480.0f, 0.01f, 1000.0f);
+
+	MVP_loc = glGetUniformLocation(programID, "MVP");
+
 	return true;
 }
 
@@ -173,6 +183,14 @@ void Displayer::clean()
 
 void Displayer::update()
 {
+	float delta = ( SDL_GetTicks() - prev_tick ) / 1000.0f;
+
+	camera.Update(delta);
+
+	prev_tick = SDL_GetTicks();
+
+	MVP = camera.GetViewProj();
+	
 }
 
 
@@ -181,6 +199,11 @@ void Displayer::render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram( programID );
+
+	glUniformMatrix4fv( MVP_loc,
+						1,
+						GL_FALSE,
+						&(MVP[0][0]) );
 
 	glBindVertexArray(vaoID);
 
@@ -200,8 +223,8 @@ void Displayer::handle_event(SDL_Event ev)
 			case SDL_KEYDOWN:
 				key_down(ev.key);
 				break;
-			case SDL_MOUSEBUTTONDOWN:
-				mouse_down(ev.button);
+			case SDL_KEYUP:
+				key_up(ev.key);
 				break;
 			case SDL_MOUSEMOTION:
 				mouse_move(ev.motion);
@@ -217,12 +240,14 @@ void Displayer::handle_event(SDL_Event ev)
 
 void Displayer::key_down(SDL_KeyboardEvent& key)
 {
-	if( key.keysym.sym == SDLK_w )
-	{
-		;
-	}
+	camera.KeyboardDown(key);
 }
 
+void Displayer::key_up(SDL_KeyboardEvent& key)
+{
+	camera.KeyboardUp(key);
+}
+/*
 void Displayer::mouse_down(SDL_MouseButtonEvent& mouse)
 {
 	if ( mouse.button == SDL_BUTTON_LEFT )
@@ -235,13 +260,26 @@ void Displayer::mouse_down(SDL_MouseButtonEvent& mouse)
 	}
 }
 
+void Displayer::mouse_up(SDL_MouseButtonEvent& mouse)
+{
+	if ( mouse.button == SDL_BUTTON_LEFT )
+	{
+		;
+	}
+	else if ( mouse.button == SDL_BUTTON_RIGHT )
+	{
+		;
+	}
+}
+*/
 void Displayer::mouse_move(SDL_MouseMotionEvent& mouse)
 {
-	mouse_x = mouse.x;
-	mouse_y = mouse.y;
+	camera.MouseMove(mouse);
 }
 
 void Displayer::resize_window(int width, int height)
 {
 	glViewport(0, 0, width, height );
+
+	camera.Resize(width, height);
 }
