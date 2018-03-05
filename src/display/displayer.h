@@ -9,7 +9,8 @@
 #include <SDL2/SDL_opengl.h>
 #include <glm/glm.hpp>
 
-#include "../repr/point.h"
+#include "../util/point.h"
+#include "../util/input.h"
 #include "gCamera.h"
 
 struct Vertex
@@ -41,6 +42,7 @@ private:
 	void resize_window(int width, int height);
 
 	int num_points;
+	bool quit, pause;
 	Uint32 prev_tick;
 
 	std::vector<Point3D> frame_points;
@@ -54,6 +56,7 @@ private:
 	GLuint MVP_loc;
 	glm::mat4 MVP;
 
+	DirInputReader input_reader;
 	gCamera camera;
 
 	int mouse_x;

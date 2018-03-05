@@ -21,7 +21,7 @@ TEST_CASE( "Testing Point3D class.", "[Point3D]" )
 TEST_CASE( "Testing InputReader class." "[InputReader]" )
 {
     InputReader ir{};
-    ir.set_filename( "test/testdata/1.test" );
+    ir.set_filename( "test/testdata/1/a.test" );
 
     std::vector<Point3D> points{ ir.get_points() };
 
@@ -36,7 +36,7 @@ TEST_CASE( "Testing InputReader class." "[InputReader]" )
 
 TEST_CASE( "Testing DirInputReader class." "[DirInputReader]" )
 {
-    DirInputReader dir{ "test/testdata" };
+    DirInputReader dir{ "test/testdata", "a.test" };
     std::vector<Point3D> p1{ dir.next() };
 
     dir.step();

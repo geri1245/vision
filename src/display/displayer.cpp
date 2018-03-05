@@ -7,8 +7,8 @@
 #include <glm/glm.hpp>
 
 #include "displayer.h"
-#include "../repr/input.h"
-#include "../repr/debug.hpp"
+#include "../util/input.h"
+#include "../util/debug.hpp"
 
 namespace
 {
@@ -91,31 +91,10 @@ bool Displayer::init()
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
-	//TODO: Move this to update
-	InputReader input("../data/fusioned_no_color.xyz");
-
-	frame_points = input.get_points();
-	num_points = frame_points.size();
-
-	frame_vertices.reserve(num_points);
-
-	
-	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
-		[](const Point3D &p)
-		{
-			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
-		});
-
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
 	
 	glGenBuffers(1, &vboID); 
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData( GL_ARRAY_BUFFER,
-				  num_points * sizeof(Vertex),
-				  frame_vertices.data(),
-				  GL_STATIC_DRAW);
-	
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
@@ -170,6 +149,8 @@ bool Displayer::init()
 
 	MVP_loc = glGetUniformLocation(programID, "MVP");
 
+	input_reader.set_path("../data", "fusioned_no_color.xyz");
+
 	return true;
 }
 
@@ -190,7 +171,26 @@ void Displayer::update()
 	prev_tick = SDL_GetTicks();
 
 	MVP = camera.GetViewProj();
+
+	frame_points = input_reader.next();
+	num_points = frame_points.size();
+	frame_vertices.reserve(num_points);
+
+	std::cout << frame_points[0] << "\n";
+
+	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
+		[](const Point3D &p)
+		{
+			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
+		});
 	
+	glBindBuffer(GL_ARRAY_BUFFER, vboID);
+	glBufferData( GL_ARRAY_BUFFER,
+				  num_points * sizeof(Vertex),
+				  frame_vertices.data(),
+				  GL_STATIC_DRAW);
+
+	input_reader.step();
 }
 
 
