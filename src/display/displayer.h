@@ -13,12 +13,6 @@
 #include "../util/input.h"
 #include "gCamera.h"
 
-struct Vertex
-{
-	glm::vec3 pos;
-	glm::vec3 col;
-};
-
 class Displayer
 {
 public:
@@ -35,12 +29,16 @@ public:
 
 private:
 
-//constants
+//Constants
 	const std::string vert_shader_path = "display/shaders/myVert.vert";
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
 	const std::string in_files_path    = "../data";
 	const std::string in_files_name    = "fusioned_no_color.xyz";
 
+	void set_ogl();
+	void next_frame();
+	
+//Events:	
 	void key_down(SDL_KeyboardEvent& ev);
 	void key_up(SDL_KeyboardEvent& ev);
 	void mouse_move(SDL_MouseMotionEvent& ev);

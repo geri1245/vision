@@ -6,6 +6,12 @@
 
 #include <glm/glm.hpp>
 
+struct Vertex
+{
+	glm::vec3 pos;
+	glm::vec3 col;
+};
+
 struct Point3D
 {
     Point3D(float x_ = 0.f, float y_ = 0.f, float z_ = 0.f);

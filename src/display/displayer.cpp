@@ -7,64 +7,10 @@
 #include <glm/glm.hpp>
 
 #include "displayer.h"
+#include "program.hpp"
 #include "../util/input.h"
 #include "../util/debug.hpp"
 
-namespace
-{
-
-GLuint load_shader(GLenum shader_type, const std::string &filename)
-{
-	GLuint shader = glCreateShader( shader_type );
-	
-	if ( shader == 0 )
-	{
-		std::cerr << "Error while initializing shader: " << filename << "\n";
-		return 0;
-	}
-	
-	std::string shaderCode = "";
-	std::ifstream shaderStream(filename);
-
-	if ( !shaderStream.is_open() )
-	{
-		std::cerr << "Error while loading shader: " <<  filename << "\n";
-		return 0;
-	}
-
-
-	std::string next_line = "";
-	while ( std::getline(shaderStream, next_line) )
-	{
-		shaderCode += next_line + "\n";
-	}
-
-	shaderStream.close();
-
-
-	const char* sourcePointer = shaderCode.c_str();
-	glShaderSource( shader, 1, &sourcePointer, NULL );
-	glCompileShader( shader );
-
-	//Check compilation result
-	GLint result = GL_FALSE;
-    int infoLogLength;
-	
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-	if ( GL_FALSE == result )
-	{
-		std::vector<char> VertexShaderErrorMessage(infoLogLength);
-		glGetShaderInfoLog(shader, infoLogLength, NULL, &VertexShaderErrorMessage[0]);
-
-		std::cerr << VertexShaderErrorMessage[0];
-	}
-
-	return shader;
-}
-
-}
 
 Displayer::Displayer()
 {
@@ -83,21 +29,17 @@ Displayer::~Displayer()
 {
 }
 
-bool Displayer::init()
+void Displayer::set_ogl()
 {
 	glClearColor(0.125f, 0.25f, 0.5f, 1.0f);
-
 	glPointSize(10.0f);
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+}
 
-	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(vaoID);
-	
-	glGenBuffers(1, &vboID); 
-
-	input_reader.set_path(in_files_path, in_files_name);
+void Displayer::next_frame()
+{
 	frame_points = input_reader.next();
 	num_points = frame_points.size();
 	frame_vertices.reserve(num_points);
@@ -107,7 +49,20 @@ bool Displayer::init()
 		{
 			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
 		});
+}
+
+bool Displayer::init()
+{
+	set_ogl();
+	input_reader.set_path(in_files_path, in_files_name);
+
+	next_frame();
+
+	glGenVertexArrays(1, &vaoID);
+	glBindVertexArray(vaoID);
 	
+	glGenBuffers(1, &vboID); 
+
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	glBufferData( GL_ARRAY_BUFFER,
 				  num_points * sizeof(Vertex),
@@ -189,15 +144,7 @@ void Displayer::update()
 
 	if ( !is_paused && !is_over )
 	{
-		frame_points = input_reader.next();
-		num_points = frame_points.size();
-		frame_vertices.reserve(num_points);
-
-		std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
-			[](const Point3D &p)
-			{
-				return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
-			});
+		next_frame();
 		
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
 		glBufferData( GL_ARRAY_BUFFER,
