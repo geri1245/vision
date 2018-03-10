@@ -34,6 +34,13 @@ public:
 	void handle_event(SDL_Event);
 
 private:
+
+//constants
+	const std::string vert_shader_path = "display/shaders/myVert.vert";
+	const std::string frag_shader_path = "display/shaders/myFrag.frag";
+	const std::string in_files_path    = "../data";
+	const std::string in_files_name    = "fusioned_no_color.xyz";
+
 	void key_down(SDL_KeyboardEvent& ev);
 	void key_up(SDL_KeyboardEvent& ev);
 	void mouse_move(SDL_MouseMotionEvent& ev);

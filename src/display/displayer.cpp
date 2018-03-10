@@ -97,8 +97,8 @@ bool Displayer::init()
 	
 	glGenBuffers(1, &vboID); 
 
-	InputReader in("../data/2/fusioned_no_color.xyz");
-	frame_points = in.get_points();
+	input_reader.set_path(in_files_path, in_files_name);
+	frame_points = input_reader.next();
 	num_points = frame_points.size();
 	frame_vertices.reserve(num_points);
 
@@ -135,8 +135,8 @@ bool Displayer::init()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	GLuint vs_ID = load_shader(GL_VERTEX_SHADER,   "display/shaders/myVert.vert");
-	GLuint fs_ID = load_shader(GL_FRAGMENT_SHADER, "display/shaders/myFrag.frag");
+	GLuint vs_ID = load_shader(GL_VERTEX_SHADER,   vert_shader_path);
+	GLuint fs_ID = load_shader(GL_FRAGMENT_SHADER, frag_shader_path);
 
 	programID = glCreateProgram();
 
@@ -166,10 +166,6 @@ bool Displayer::init()
 	camera.SetProj(45.0f, 640.0f / 480.0f, 0.01f, 1000.0f);
 
 	MVP_loc = glGetUniformLocation(programID, "MVP");
-
-	input_reader.set_path("../data", "fusioned_no_color.xyz");
-	input_reader.step();
-
 	return true;
 }
 
