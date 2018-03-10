@@ -7,7 +7,6 @@
 #include <glm/glm.hpp>
 
 #include "displayer.h"
-#include "program.hpp"
 #include "../util/input.h"
 #include "../util/debug.hpp"
 
@@ -16,7 +15,6 @@ Displayer::Displayer()
 {
 	vaoID     = 0;
 	vboID     = 0;
-	programID = 0;
 
 	is_paused = false;
 	is_over   = false;
@@ -31,10 +29,15 @@ Displayer::~Displayer()
 
 void Displayer::set_ogl()
 {
-	glClearColor(0.125f, 0.25f, 0.5f, 1.0f);
-	glPointSize(10.0f);
+	//glClearColor(0.125f, 0.25f, 0.5f, 1.0f);
+	glClearColor(0, 0, 0, 1.0f);
+	glPointSize(point_size);
 
-	glEnable(GL_CULL_FACE);
+	glEnable(GL_POINT_SMOOTH); 
+
+	glEnable(GL_BLEND);	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -58,78 +61,19 @@ bool Displayer::init()
 
 	next_frame();
 
-	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(vaoID);
-	
-	glGenBuffers(1, &vboID); 
+	program.generate_vao_vbo<Vertex>(vaoID, vboID, num_points * sizeof(Vertex), frame_vertices.data());
+	program.create_program_with_shaders(
+		vert_shader_path, 
+		frag_shader_path);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData( GL_ARRAY_BUFFER,
-				  num_points * sizeof(Vertex),
-				  frame_vertices.data(),
-				  GL_STATIC_DRAW);
+	program.get_uniform(MVP_loc, "MVP");
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		(GLuint)0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(Vertex),
-		0); 
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		(GLuint)1,
-		3, 
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(Vertex),
-		(void*)(sizeof(glm::vec3)) );
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	GLuint vs_ID = load_shader(GL_VERTEX_SHADER,   vert_shader_path);
-	GLuint fs_ID = load_shader(GL_FRAGMENT_SHADER, frag_shader_path);
-
-	programID = glCreateProgram();
-
-	glAttachShader(programID, vs_ID);
-	glAttachShader(programID, fs_ID);
-
-	glBindAttribLocation( programID, 0, "vs_in_pos");
-	glBindAttribLocation( programID, 1, "vs_in_col");
-
-	glLinkProgram(programID);
-
-	GLint infoLogLength = 0, result = 0;
-
-	glGetProgramiv(programID, GL_LINK_STATUS, &result);
-	glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
-	if (GL_FALSE == result )
-	{
-		char* error = new char[infoLogLength];
-		glGetProgramInfoLog(programID, infoLogLength, NULL, error);
-		std::cerr << "[displayer init] Error while creating shader " << error << std::endl;
-		delete[] error;
-	}
-
-	glDeleteShader( vs_ID );
-	glDeleteShader( fs_ID );
-
-	camera.SetProj(45.0f, 640.0f / 480.0f, 0.01f, 1000.0f);
-
-	MVP_loc = glGetUniformLocation(programID, "MVP");
 	return true;
 }
 
 void Displayer::clean()
 {
-	glDeleteBuffers(1, &vboID);
-	glDeleteVertexArrays(1, &vaoID);
-
-	glDeleteProgram( programID );
+	program.clean(vaoID, vboID);
 }
 
 void Displayer::update()
@@ -145,12 +89,7 @@ void Displayer::update()
 	if ( !is_paused && !is_over )
 	{
 		next_frame();
-		
-		glBindBuffer(GL_ARRAY_BUFFER, vboID);
-		glBufferData( GL_ARRAY_BUFFER,
-					num_points * sizeof(Vertex),
-					frame_vertices.data(),
-					GL_STATIC_DRAW);
+		program.update_vbo<Vertex>(vboID, num_points * sizeof(Vertex), frame_vertices.data());
 
 		is_over = !input_reader.step();
 	}
@@ -161,20 +100,7 @@ void Displayer::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram( programID );
-
-	glUniformMatrix4fv( MVP_loc,
-						1,
-						GL_FALSE,
-						&(MVP[0][0]) );
-
-	glBindVertexArray(vaoID);
-
-	glDrawArrays(GL_POINTS, 0, num_points);
-
-	glBindVertexArray(0);
-
-	glUseProgram( 0 );
+	program.draw_points(vaoID, MVP_loc, MVP, num_points);
 }
 
 //Event handling:

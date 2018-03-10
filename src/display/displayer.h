@@ -1,5 +1,5 @@
-#ifndef VISUALIZATION_H
-#define VISUALIZATION_H
+#ifndef DISPLAY_DISPLAYER_H
+#define DISPLAY_DISPLAYER_H
 
 #include <vector>
 #include <array>
@@ -12,6 +12,7 @@
 #include "../util/point.h"
 #include "../util/input.h"
 #include "gCamera.h"
+#include "program.hpp"
 
 class Displayer
 {
@@ -34,6 +35,10 @@ private:
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
 	const std::string in_files_path    = "../data";
 	const std::string in_files_name    = "fusioned_no_color.xyz";
+	//const std::string in_files_name    = "lidar1.xyz";
+	//const std::string in_files_name    = "lidar2.xyz";
+
+	const GLfloat point_size = 15.0f;
 
 	void set_ogl();
 	void next_frame();
@@ -51,14 +56,13 @@ private:
 	std::vector<Point3D> frame_points;
 	std::vector<Vertex>  frame_vertices;
 
-	GLuint programID;
-
 	GLuint vaoID;
 	GLuint vboID;
 
 	GLuint MVP_loc;
 	glm::mat4 MVP;
 
+	Program program;
 	DirInputReader input_reader;
 	gCamera camera;
 
