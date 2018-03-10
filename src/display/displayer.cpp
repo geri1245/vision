@@ -72,9 +72,10 @@ Displayer::Displayer()
 	vboID     = 0;
 	programID = 0;
 
-	prev_tick = SDL_GetTicks();
+	is_paused = false;
+	is_over   = false;
 
-	//camera.SetView(glm::vec3(50, -8, -200), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	prev_tick = SDL_GetTicks();
 }
 
 
@@ -88,7 +89,7 @@ bool Displayer::init()
 
 	glPointSize(10.0f);
 
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	glGenVertexArrays(1, &vaoID);
@@ -190,26 +191,26 @@ void Displayer::update()
 
 	MVP = camera.GetViewProj();
 
-	frame_points = input_reader.next();
-	num_points = frame_points.size();
-	frame_vertices.reserve(num_points);
+	if ( !is_paused && !is_over )
+	{
+		frame_points = input_reader.next();
+		num_points = frame_points.size();
+		frame_vertices.reserve(num_points);
 
-	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
-		[](const Point3D &p)
-		{
-			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
-		});
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData( GL_ARRAY_BUFFER,
-				  num_points * sizeof(Vertex),
-				  frame_vertices.data(),
-				  GL_STATIC_DRAW);
+		std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
+			[](const Point3D &p)
+			{
+				return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
+			});
+		
+		glBindBuffer(GL_ARRAY_BUFFER, vboID);
+		glBufferData( GL_ARRAY_BUFFER,
+					num_points * sizeof(Vertex),
+					frame_vertices.data(),
+					GL_STATIC_DRAW);
 
-	quit = !input_reader.step();
-
-	if(quit)
-		exit(0);
+		is_over = !input_reader.step();
+	}
 }
 
 
@@ -259,6 +260,10 @@ void Displayer::handle_event(SDL_Event ev)
 
 void Displayer::key_down(SDL_KeyboardEvent& key)
 {
+	if (key.keysym.sym == SDLK_SPACE)
+	{
+		is_paused = !is_paused;
+	}
 	camera.KeyboardDown(key);
 }
 
@@ -266,31 +271,7 @@ void Displayer::key_up(SDL_KeyboardEvent& key)
 {
 	camera.KeyboardUp(key);
 }
-/*
-void Displayer::mouse_down(SDL_MouseButtonEvent& mouse)
-{
-	if ( mouse.button == SDL_BUTTON_LEFT )
-	{
-		;
-	}
-	else if ( mouse.button == SDL_BUTTON_RIGHT )
-	{
-		;
-	}
-}
 
-void Displayer::mouse_up(SDL_MouseButtonEvent& mouse)
-{
-	if ( mouse.button == SDL_BUTTON_LEFT )
-	{
-		;
-	}
-	else if ( mouse.button == SDL_BUTTON_RIGHT )
-	{
-		;
-	}
-}
-*/
 void Displayer::mouse_move(SDL_MouseMotionEvent& mouse)
 {
 	camera.MouseMove(mouse);
