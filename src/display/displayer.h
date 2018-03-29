@@ -33,7 +33,7 @@ private:
 //Constants
 	const std::string vert_shader_path = "display/shaders/myVert.vert";
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
-	const std::string in_files_path    = "../data";
+	const std::string in_files_path    = "../data1";
 	const std::string in_files_name    = "fusioned_no_color.xyz";
 	//const std::string in_files_name    = "lidar1.xyz";
 	//const std::string in_files_name    = "lidar2.xyz";

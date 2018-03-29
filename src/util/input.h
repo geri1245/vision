@@ -34,11 +34,11 @@ public:
     ~DirInputReader() = default;
     DirInputReader(
         const std::experimental::filesystem::path &path_,
-        const std::string &suffix_);
+        const std::string &filename_);
 
     void set_path(
         const std::experimental::filesystem::path &path_,
-        const std::string &suffix_);
+        const std::string &filename_);
     bool step();
     std::vector<Point3D> next();
 
@@ -50,7 +50,7 @@ private:
     InputReader input_reader;
 
     std::experimental::filesystem::path path;
-    std::string suffix;
+    std::string filename;
     std::fstream in;
     std::vector<std::string> files;
 };

@@ -33,11 +33,11 @@ namespace { namespace fs = std::experimental::filesystem; }
 
 DirInputReader::DirInputReader(
     const fs::path &path_,
-    const std::string &suffix_) : 
+    const std::string &filename_) : 
 
     current(0),
     path(path_),
-    suffix(suffix_)
+    filename(filename_)
 {
     files = files_in_directory(path);
     size = files.size();
@@ -45,10 +45,10 @@ DirInputReader::DirInputReader(
 
 void DirInputReader::set_path(
     const std::experimental::filesystem::path &path_,
-    const std::string &suffix_)
+    const std::string &filename_)
 {
     path = path_;
-    suffix = suffix_;
+    filename = filename_;
     current = 0;
     files = files_in_directory(path);
     size = files.size();
@@ -69,8 +69,9 @@ std::vector<Point3D> DirInputReader::next()
 {
     InputReader ir{};
     ir.set_filename( 
-        suffix == "" ? 
+        filename == "" ? 
         files[current] :
-        files[current] + "/" + suffix );
+        files[current] + "/" + filename );
+        //files[current] + "/frame_" + files[current] + filename ); // Experimental for data2
     return ir.get_points();
 }
