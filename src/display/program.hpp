@@ -99,12 +99,12 @@ namespace{
 }
 
 
-Program::Program() : programID{ 0 } 
+inline Program::Program() 
 {
 	programID = glCreateProgram();
 }
 
-Program::~Program() 
+inline Program::~Program() 
 {
 	glDeleteProgram(programID);
 }
@@ -169,14 +169,14 @@ inline void Program::create_program_with_shaders(
 }
 
 
-void Program::get_uniform(GLuint &uniform_loc, const std::string &name)
+inline void Program::get_uniform(GLuint &uniform_loc, const std::string &name)
 {
 	uniform_loc = glGetUniformLocation(programID, name.c_str());
 }
 
 
 template <typename T>
-void Program::update_vbo(GLuint vboID, int size, const T *data)
+inline void Program::update_vbo(GLuint vboID, int size, const T *data)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
@@ -199,7 +199,7 @@ inline void Program::draw_points(GLuint vaoID, GLuint MVP_loc, const glm::mat4 &
 }
 
 
-void Program::clean(GLuint vaoID, GLuint vboID)
+inline void Program::clean(GLuint vaoID, GLuint vboID)
 {
 	glDeleteBuffers(1, &vboID);
 	glDeleteVertexArrays(1, &vaoID);
