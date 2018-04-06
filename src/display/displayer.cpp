@@ -11,6 +11,25 @@
 #include "../util/debug.hpp"
 
 
+struct Pred
+{
+	bool operator()(const Point3D &lhs, const Point3D &rhs)
+	{
+		if( lhs.x < rhs.x )
+		{
+			return true;
+		}
+		else if ( lhs.x > rhs.x )
+		{
+			return false;
+		}
+		else
+		{
+			return lhs.z < rhs.z;
+		}
+	}
+};
+
 Displayer::Displayer()
 {
 	vaoID     = 0;
@@ -44,13 +63,16 @@ void Displayer::set_ogl()
 void Displayer::next_frame()
 {
 	frame_points = input_reader.next();
+	
+	//std::sort(frame_points.begin(), frame_points.end(), Pred());
+	
 	num_points = frame_points.size();
 	frame_vertices.reserve(num_points);
 
 	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
 		[](const Point3D &p)
 		{
-			return Vertex{ glm::vec3{p.x, p.z, p.y}, {1.0, 1.0, 1.0} };
+			return Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} };
 		});
 }
 

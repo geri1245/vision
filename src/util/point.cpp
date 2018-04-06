@@ -56,6 +56,6 @@ std::ostream& operator<<(std::ostream &os, const Point3D &point)
 
 std::istream& operator>>(std::istream &in, Point3D &point)
 {
-    in >> point.x >> point.y >> point.z;
+    in >> point.x >> point.z >> point.y;
     return in;
 }

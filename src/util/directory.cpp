@@ -8,19 +8,19 @@ namespace
 struct LexicalCompare
 {
     bool operator()(const std::string &lhs, const std::string &rhs)
-{
-    if ( lhs.size() < rhs.size() )
-    { 
-        return true; 
-    }
-    else if ( rhs.size() < lhs.size() ) 
     {
-        return false;
-    } 
+        if ( lhs.size() < rhs.size() )
+        { 
+            return true; 
+        }
+        else if ( rhs.size() < lhs.size() ) 
+        {
+            return false;
+        } 
 
-    //Only reach this point if they are the same length
-    return lhs < rhs;
-}
+        //Only reach this point if they are the same length
+        return lhs < rhs;
+    }
 
 };
 
