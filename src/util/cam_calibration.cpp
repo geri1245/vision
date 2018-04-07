@@ -11,16 +11,7 @@ void read_mat3(std::istream &in, glm::mat3 &m)
     }
 }
 
-template <typename T>
-void read_vec(std::istream &in, T &vec, int size)
-{
-    for(int i = 0; i < size; ++i)
-    {
-        in >> vec[i];
-    }
-}
-
-void print(const glm::mat3 &m)
+void print_mat3(const glm::mat3 &m)
 {
     for(int i = 0; i < 3; ++i)
     {
@@ -32,14 +23,20 @@ void print(const glm::mat3 &m)
     }
 }
 
-template <typename T>
-void print(const T &vec, int size)
+
+MatVec::MatVec(const glm::mat3 &R_, const glm::vec3 &t_) :
+    R(R_),
+    t(t_),
+    is_valid(true)
+{}
+
+MatVec::MatVec() :
+    is_valid(false)
+{}
+
+glm::vec3 MatVec::mult_add(const glm::vec3 &v)
 {
-    for(int i = 0; i < size; ++i)
-    {
-        std::cout << vec[i] << " ";
-    }
-    std::cout << "\n";
+    return is_valid ? glm::vec3{R * v + t} : glm::vec3{};
 }
 
 CamCalibration::CamCalibration(int size)
@@ -54,10 +51,10 @@ void CamCalibration::add_image_calibration(const ImageCalibration &image_cal)
 
 void CamCalibration::set_Rt(glm::mat3 R_, glm::vec3 t_)
 {
-    R = R_;
-    t = t_;
+    lidar1_to_lidar2 = MatVec(R_, t_);
 }
 
+/*
 int main()
 {
     std::ifstream in{"../../data1/calibration.txt"};
@@ -87,8 +84,8 @@ int main()
         in >> eq;
     }
 
-    print(R);
-    print(t, 3);
+    print_mat3(R);
+    print_vec(t, 3);
 
     in >> i;
 
@@ -123,4 +120,4 @@ int main()
     std::cout << eq;
 
     return 0;
-}
+}*/
