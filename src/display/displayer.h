@@ -33,7 +33,10 @@ private:
 //Constants
 	const std::string vert_shader_path = "display/shaders/myVert.vert";
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
+	
 	const std::string in_files_path    = "../data1";
+	//const std::string in_files_path    = "../data2";
+	
 	const std::string in_files_name    = "fusioned_no_color.xyz";
 	//const std::string in_files_name    = ".xyz";
 	//const std::string in_files_name    = "lidar1.xyz";
@@ -50,7 +53,7 @@ private:
 	void mouse_move(SDL_MouseMotionEvent& ev);
 	void resize_window(int width, int height);
 
-	int num_points;
+	int num_points, points_to_draw;
 	bool is_over, is_paused;
 	Uint32 prev_tick;
 

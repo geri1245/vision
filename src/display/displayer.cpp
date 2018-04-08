@@ -67,13 +67,16 @@ void Displayer::next_frame()
 	//std::sort(frame_points.begin(), frame_points.end(), Pred());
 	
 	num_points = frame_points.size();
-	frame_vertices.reserve(num_points);
 
-	std::transform(frame_points.begin(), frame_points.end(), frame_vertices.begin(),
-		[](const Point3D &p)
+	if(num_points != 0) //We only change the displayed points if the frame is not empty
+	{
+		frame_vertices.clear();
+
+		for( const auto& p : frame_points )
 		{
-			return Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} };
-		});
+			frame_vertices.push_back( Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} } );
+		}
+	}
 }
 
 bool Displayer::init()
@@ -111,7 +114,9 @@ void Displayer::update()
 	if ( !is_paused && !is_over )
 	{
 		next_frame();
-		program.update_vbo<Vertex>(vboID, num_points * sizeof(Vertex), frame_vertices.data());
+		points_to_draw = num_points == 0 ? frame_vertices.size() : num_points;
+
+		program.update_vbo<Vertex>(vboID, points_to_draw * sizeof(Vertex), frame_vertices.data());
 
 		is_over = !input_reader.step();
 	}
@@ -122,7 +127,7 @@ void Displayer::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	program.draw_points(vaoID, MVP_loc, MVP, num_points);
+	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
 }
 
 //Event handling:
