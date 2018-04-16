@@ -1,5 +1,5 @@
 cc = g++
-libs = -lSDL2 -lSDL2main -lGL -lGLU -lglut -lGLEW -lstdc++fs
+libs = -lSDL2 -lSDL2main -lopencv_core -lopencv_highgui -lGL -lGLU -lglut -lGLEW -lstdc++fs
 cflags = -Wall -Wextra -std=c++17 -O2
 
 SOURCEDIR = .

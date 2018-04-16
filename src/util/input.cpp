@@ -6,7 +6,7 @@ InputReader::InputReader(const std::string &filename_, int size_) :
     filename(filename_)
     {}
 
-std::vector<Point3D> InputReader::get_points()
+std::vector<Point3D> InputReader::get_points(std::vector<cv::Mat> &camera_images)
 {
     in.open(filename);
 
@@ -20,12 +20,23 @@ std::vector<Point3D> InputReader::get_points()
         ret.push_back(p);
     }
 
+    for(int i = 0; i < 6; ++i)
+    {
+        std::string name = texture_name + std::to_string(i) + ".jpg";
+        camera_images[i] = cv::imread(name, CV_LOAD_IMAGE_COLOR);
+    }
+
     return ret;
 }
 
 void InputReader::set_filename(const std::string &filename_)
 {
     filename = filename_;
+}
+
+void InputReader::set_texture_name(const std::string &texture_name_)
+{
+    texture_name = texture_name_;
 }
 
 
@@ -65,7 +76,7 @@ bool DirInputReader::step()
     return true;
 }
 
-std::vector<Point3D> DirInputReader::next()
+std::vector<Point3D> DirInputReader::next(std::vector<cv::Mat> &camera_images)
 {
     InputReader ir{};
     ir.set_filename( 
@@ -74,5 +85,9 @@ std::vector<Point3D> DirInputReader::next()
         files[current] + "/" + filename );
         //files[current] + "/frame_" + files[current].substr(9, 4) + filename ); // Experimental for data2
     
-    return ir.get_points();
+    ir.set_texture_name(
+        files[current] + "/cam"
+    );
+    
+    return ir.get_points(camera_images);
 }

@@ -10,7 +10,7 @@
 #include "../util/input.h"
 #include "../util/debug.hpp"
 
-
+//Predicate for Point3D comparison
 struct Pred
 {
 	bool operator()(const Point3D &lhs, const Point3D &rhs)
@@ -30,7 +30,7 @@ struct Pred
 	}
 };
 
-Displayer::Displayer()
+Displayer::Displayer() : camera_images(num_of_cams), cam_calibration(num_of_cams)
 {
 	vaoID     = 0;
 	vboID     = 0;
@@ -62,9 +62,9 @@ void Displayer::set_ogl()
 
 void Displayer::next_frame()
 {
-	frame_points = input_reader.next();
+	frame_points = input_reader.next(camera_images);
 	
-	//std::sort(frame_points.begin(), frame_points.end(), Pred());
+	std::sort(frame_points.begin(), frame_points.end(), Pred());
 	
 	num_points = frame_points.size();
 
@@ -83,6 +83,9 @@ bool Displayer::init()
 {
 	set_ogl();
 	input_reader.set_path(in_files_path, in_files_name);
+
+	std::ifstream in{cam_calibration_file_path};
+	in >> cam_calibration;
 
 	next_frame();
 

@@ -11,6 +11,7 @@
 
 #include "../util/point.h"
 #include "../util/input.h"
+#include "../util/cam_calibration.h"
 #include "gCamera.h"
 #include "program.hpp"
 
@@ -35,12 +36,16 @@ private:
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
 	
 	const std::string in_files_path    = "../data1";
+	const std::string cam_calibration_file_path    = "../data1/calibration.txt";
+	const std::string texture_path    = "../data1/calibration.txt";
 	//const std::string in_files_path    = "../data2";
 	
 	const std::string in_files_name    = "fusioned_no_color.xyz";
 	//const std::string in_files_name    = ".xyz";
 	//const std::string in_files_name    = "lidar1.xyz";
 	//const std::string in_files_name    = "lidar2.xyz";
+
+	static const int num_of_cams = 6;
 
 	const GLfloat point_size = 15.0f;
 
@@ -62,12 +67,14 @@ private:
 
 	GLuint vaoID;
 	GLuint vboID;
+	std::vector<cv::Mat> camera_images;
 
 	GLuint MVP_loc;
 	glm::mat4 MVP;
 
 	Program program;
 	DirInputReader input_reader;
+	CamCalibration cam_calibration;
 	gCamera camera;
 
 	int mouse_x;

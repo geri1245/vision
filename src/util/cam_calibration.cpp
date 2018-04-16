@@ -122,7 +122,7 @@ std::ostream &operator<<(std::ostream &os, const CamCalibration &cam)
 {
     os << "lidar1 to lidar 2: ";
     os << cam.lidar1_to_lidar2;
-    for(int i = 0; i < cam.image_calibrations.size(); ++i)
+    for(unsigned int i = 0; i < cam.image_calibrations.size(); ++i)
     {
         os << "cam nr " << i << ":\n " << cam.image_calibrations[i]; 
     }
@@ -167,16 +167,4 @@ std::istream &operator>>(std::istream &in, MatVec &mv)
     mv.is_valid = true;
 
     return in;
-}
-
-int main()
-{
-    std::ifstream in{"../../data1/calibration.txt"};
-    CamCalibration cam(6);
-
-    in >> cam;
-
-    std::cout << cam;
-
-    return 0;
 }
