@@ -44,6 +44,37 @@ ImageCalibration::ImageCalibration(int num, int size) : num { num }
     mat_vecs.resize(size);
 }
 
+glm::vec2 ImageCalibration::get_pixel_coords(const Point3D &p, int lidar_id)
+{
+    glm::vec3 tmp;
+    double u, v;
+    int id = lidar_id;
+
+    //Find the correct lidar matrix and vector
+    if( mat_vecs[lidar_id].is_valid )
+    {
+        id = lidar_id;
+    }
+    else
+    {
+        id = 1 - lidar_id;
+    }
+
+    tmp = mat_vecs[id].mult_add(p);
+    tmp[0] /= tmp[2];
+    tmp[1] /= tmp[2];
+
+    float r_sq = tmp[0] * tmp[0] + tmp[1] * tmp[1];
+
+    tmp[0] = tmp[0] * (1 + discoeff[0] * r_sq + discoeff[1] * r_sq * r_sq);
+    tmp[1] = tmp[1] * (1 + discoeff[0] * r_sq + discoeff[1] * r_sq * r_sq);
+
+    u = cam_mat[0][0] * tmp[0] + cam_mat[0][2];
+    v = cam_mat[1][1] * tmp[1] + cam_mat[1][2];
+
+    return glm::vec2{u, v};
+}
+
 CamCalibration::CamCalibration(int size)
 {
     image_calibrations.reserve(size);

@@ -8,6 +8,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../util/point.h"
+
 struct MatVec
 {
     MatVec();
@@ -21,7 +23,8 @@ struct MatVec
 
 struct ImageCalibration
 {
-    explicit ImageCalibration(int num, int size);
+    ImageCalibration(int num, int size);
+    glm::vec2 get_pixel_coords(const Point3D &p, int lidar_id);
 
     int num;
     glm::mat3 cam_mat;
