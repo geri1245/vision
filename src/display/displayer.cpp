@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "displayer.h"
 #include "../util/input.h"
@@ -52,11 +53,11 @@ void Displayer::set_ogl()
 	glClearColor(0, 0, 0, 1.0f);
 	glPointSize(point_size);
 
-	glEnable(GL_POINT_SMOOTH); 
+	//glEnable(GL_POINT_SMOOTH); 
 
-	glEnable(GL_BLEND);	
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glEnable(GL_CULL_FACE);
+	//glEnable(GL_BLEND);	
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -87,9 +88,40 @@ bool Displayer::init()
 	std::ifstream in{cam_calibration_file_path};
 	in >> cam_calibration;
 
+	//Construct points for a cube
+	std::vector<Vertex> cube_vertices;
+	cube_vertices.resize(8);
+	cube_vertices.push_back( { glm::vec3(-0.5, -0.5, -0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3(-0.5, -0.5,  0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3( 0.5, -0.5,  0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3( 0.5, -0.5, -0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3(-0.5,  0.5, -0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3(-0.5,  0.5,  0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3( 0.5,  0.5,  0.5), glm::vec3(1, 0, 0) } );
+	cube_vertices.push_back( { glm::vec3( 0.5,  0.5, -0.5), glm::vec3(1, 0, 0) } );
+
+	GLushort indices[]=
+    {
+        0, 1, 2, 2, 3, 0,
+		6, 2, 3, 3, 7, 6,
+		7, 3, 0, 0, 4, 7,
+		4, 0, 2, 2, 5, 4,
+		5, 1, 2, 2, 6, 5,
+		4, 5, 6, 6, 7, 0
+    };
+
 	next_frame();
 
 	program.generate_vao_vbo<Vertex>(vaoID, vboID, num_points * sizeof(Vertex), frame_vertices.data());
+	program.generate_vao_vbo<Vertex>(cube_vaoID, cube_vboID, 8 * sizeof(Vertex), cube_vertices.data(), GL_STATIC_DRAW);
+	
+	glBindVertexArray(cube_vaoID);
+	glBindBuffer(GL_ARRAY_BUFFER, cube_vboID);
+
+	glGenBuffers(1, &cube_indexBufferID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_indexBufferID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	program.create_program_with_shaders(
 		vert_shader_path, 
 		frag_shader_path);
@@ -131,6 +163,14 @@ void Displayer::render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
+
+	glUseProgram( program.program_id() );
+	MVP = MVP * glm::scale(glm::vec3(10.0f));
+	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
+
+	glBindVertexArray(cube_vaoID);
+	glDrawElements(GL_TRIANGLES, 6 * 4, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(0);
 }
 
 //Event handling:

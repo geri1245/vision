@@ -65,8 +65,8 @@ private:
 	std::vector<Point3D> frame_points;
 	std::vector<Vertex>  frame_vertices;
 
-	GLuint vaoID;
-	GLuint vboID;
+	GLuint vaoID, vboID;
+	GLuint cube_vaoID, cube_vboID, cube_indexBufferID;
 	std::vector<cv::Mat> camera_images;
 
 	GLuint MVP_loc;

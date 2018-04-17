@@ -18,7 +18,9 @@ public:
 	~Program();
 
 	template <typename T>
-	void generate_vao_vbo(GLuint &vaoID, GLuint &vboID, int size, const T *data);
+	void generate_vao_vbo(
+		GLuint &vaoID, GLuint &vboID, int size, 
+		const T *data, GLuint mode = GL_DYNAMIC_DRAW);
 
 	void create_program_with_shaders(
 		const std::string &vert_path, 
@@ -34,6 +36,7 @@ public:
 		const glm::mat4 &MVP, int num_points);
 
 	void clean(GLuint vaoID, GLuint vboID);
+	GLuint program_id();
 
 private:
 
@@ -110,7 +113,7 @@ inline Program::~Program()
 }
 
 template <typename T>
-void Program::generate_vao_vbo(GLuint &vaoID, GLuint &vboID, int size, const T *data)
+void Program::generate_vao_vbo(GLuint &vaoID, GLuint &vboID, int size, const T *data, GLuint mode)
 {
 	glGenVertexArrays(1, &vaoID);
 	glBindVertexArray(vaoID);
@@ -118,7 +121,7 @@ void Program::generate_vao_vbo(GLuint &vaoID, GLuint &vboID, int size, const T *
 	glGenBuffers(1, &vboID); 
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, size, data, mode);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer( (GLuint)0, 3, GL_FLOAT, GL_FALSE, sizeof(T), 0 ); 
@@ -203,6 +206,11 @@ inline void Program::clean(GLuint vaoID, GLuint vboID)
 {
 	glDeleteBuffers(1, &vboID);
 	glDeleteVertexArrays(1, &vaoID);
+}
+
+inline GLuint Program::program_id()
+{
+	return programID;
 }
 
 #endif
