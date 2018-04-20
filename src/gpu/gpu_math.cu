@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <cmath>
 #include "../util/point_raw.h"
+#include "gpu_math.cuh"
 
 //Cross product for float vector
-__device__ void gpu_cross_3_vec(float *u, float *v, float *res)
+__device__ void gpu_cross_vec3(float *u, float *v, float *res)
 {
     res[0] = u[1] * v[2] - u[2] * v[1];
     res[1] = u[2] * v[0] - u[0] * v[2];
@@ -12,11 +13,23 @@ __device__ void gpu_cross_3_vec(float *u, float *v, float *res)
 }
 
 //Cross product for vectors represented by Point3D
-__device__ void gpu_cross_3_point(Point3D u, Point3D v, Point3D *res)
+__device__ Point3D gpu_cross_point(Point3D u, Point3D v)
 {
-    res->x = u.y * v.z - u.z * v.y;
-    res->y = u.z * v.x - u.x * v.z;
-    res->z = u.x * v.y - u.y * v.x;
+    return (Point3D){
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x
+    };
+}
+
+__device__ float gpu_dot_vec3(float *u, float *v)
+{
+    return u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+}
+
+__device__ float gpu_dot_point(Point3D u, Point3D v)
+{
+    return u.x * v.x + u.y * v.y + u.z * v.z;
 }
 
 __device__ void gpu_matrix_mul_3x3(float *A, float *B, float *result)
@@ -32,6 +45,22 @@ __device__ void gpu_matrix_mul_3x3(float *A, float *B, float *result)
                 A[3 * i + 2] * B[6 + j];
         }
     }
+}
+
+__device__ void gpu_mat_vec_mul(float *mat, float *vec, float *result)
+{
+    result[0] = mat[0] * vec[0] + mat[1] * vec[1] + mat[2] * vec[2];
+    result[1] = mat[3] * vec[0] + mat[4] * vec[1] + mat[5] * vec[2];
+    result[2] = mat[6] * vec[0] + mat[7] * vec[1] + mat[8] * vec[2];
+}
+
+__device__ Point3D gpu_mat_vec_mul(float *mat, Point3D vec)
+{
+    return (Point3D) {
+        mat[0] * vec.x + mat[1] * vec.y + mat[2] * vec.z,
+        mat[3] * vec.x + mat[4] * vec.y + mat[5] * vec.z,
+        mat[6] * vec.x + mat[7] * vec.y + mat[8] * vec.z
+    };
 }
 
 __device__ void normalize(Point3D *p)
@@ -72,8 +101,9 @@ __device__ void gpu_plane_coeffs(Point3D vec, Point3D p1, Point3D p2, float *coe
 {
     Point3D vec2 = gpu_sub_points(p1, p2); //Calculate another direction vector
     
-    Point3D normal;
-    gpu_cross_3_point(vec, vec2, &normal); //Now we have the normal vector of the plane
+    //Calculating the normal vector of the plane
+    Point3D normal = gpu_cross_point(vec, vec2);
+
     coeffs[0] = normal.x;
     coeffs[1] = normal.y;
     coeffs[2] = normal.z;
@@ -90,9 +120,21 @@ __global__ void gpu_matrix_mul_3x3_test(float *A, float *B, float *result)
     gpu_matrix_mul_3x3(A, B, result);
 }
 
-__global__ void gpu_cross_3_vec_test(float *u, float *v, float *res)
+__global__ void gpu_mat_vec_mul_test(float *mat, float *vec, float *res)
 {
-    gpu_cross_3_vec(u, v, res);
+    gpu_mat_vec_mul(mat, vec, res);
+    Point3D tmp = gpu_mat_vec_mul(mat, (Point3D){vec[0], vec[1], vec[2]});
+
+    //Here tmp == res
+
+    res[0] = tmp.x;
+    res[1] = tmp.y;
+    res[2] = tmp.z;
+}
+
+__global__ void gpu_cross_vec3_test(float *u, float *v, float *res)
+{
+    gpu_cross_vec3(u, v, res);
 }
 
 __global__ void gpu_plane_coeffs_test(Point3D vec, Point3D p1, Point3D p2, float *coeffs)
@@ -103,6 +145,11 @@ __global__ void gpu_plane_coeffs_test(Point3D vec, Point3D p1, Point3D p2, float
 __global__ void gpu_distance_from_plane_test(Point3D p, float *coeffs, float *dist)
 {
     *dist = gpu_distance_from_plane(p, coeffs);
+}
+
+__global__ void gpu_dot_point_test(Point3D p1, Point3D p2, float *result)
+{
+    *result = gpu_dot_point(p1, p2);
 }
 
 int main()
@@ -146,7 +193,7 @@ int main()
     cudaMemcpy(gpu_u, u, sizeof(u), cudaMemcpyHostToDevice);
     cudaMemcpy(gpu_v, v, sizeof(v), cudaMemcpyHostToDevice);
     
-    gpu_cross_3_vec_test<<<1, 1>>>(gpu_u, gpu_v, gpu_resu);
+    gpu_cross_vec3_test<<<1, 1>>>(gpu_u, gpu_v, gpu_resu);
     
     //Plane coefficients test
     Point3D direction = (Point3D) {5, 2, -3};
@@ -206,13 +253,55 @@ int main()
     cudaMemcpy(gpu_coeffs_distance, coeffs_distance, sizeof(coeffs_distance), cudaMemcpyHostToDevice);
 
     gpu_distance_from_plane_test<<<1, 1>>>(point, gpu_coeffs_distance, gpu_dist);
+
+    //Matrix vector multiplication test
+
+    float mat[] = {1, 8, 3, 4, 5, 2, 3, 9, 10};
+    float vec[] = {1, 5, 4};
+
+    float *gpu_mat, *gpu_vec, *gpu_res_vec;
+    float res_vec[3];
+
+    cudaMalloc((void**)&gpu_mat, sizeof(mat));
+    cudaMalloc((void**)&gpu_vec, sizeof(vec));
+    cudaMalloc((void**)&gpu_res_vec, sizeof(vec));
+
+    cudaMemcpy(gpu_mat, mat, sizeof(mat), cudaMemcpyHostToDevice);
+    cudaMemcpy(gpu_vec, vec, sizeof(vec), cudaMemcpyHostToDevice);
+
+    gpu_mat_vec_mul_test<<<1, 1>>>(gpu_mat, gpu_vec, gpu_res_vec);
+
+    //Dot product test
+    Point3D p_dot1 = (Point3D){2, 4.7, 10};
+    Point3D p_dot2 = (Point3D){50, 4, 1.14};
+
+    float *gpu_dot_result, dot_result;
+
+    cudaMalloc((void**) &gpu_dot_result, sizeof(float));
+
+    gpu_dot_point_test<<<1, 1>>>(p_dot1, p_dot2, gpu_dot_result);
     
     cudaDeviceSynchronize();
     cudaMemcpy(&dist, gpu_dist, sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&res_vec, gpu_res_vec, sizeof(res_vec), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&dot_result, gpu_dot_result, sizeof(float), cudaMemcpyDeviceToHost);
     
     cudaFree(gpu_dist);
+    cudaFree(gpu_mat);
+    cudaFree(gpu_vec);
+    cudaFree(gpu_res_vec);
+    cudaFree(gpu_dot_result);
     
-    std::cout << "\nPoint distance from plane:\n" << dist << "\n";
+    std::cout << "Point distance from plane:\n" << dist << "\n";
 
+    std::cout << "\nMatrix vector multiplication result:\n";
+    for(int i = 0; i < 3; ++i)
+    {
+        std::cout << res_vec[i] << " ";
+    }
+
+    std::cout << "\nDot product result: " << dot_result;
+
+    std::cout << "\n";
     return 0;
 }
