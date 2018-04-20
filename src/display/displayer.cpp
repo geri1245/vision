@@ -60,33 +60,8 @@ void Displayer::set_ogl()
 	glEnable(GL_DEPTH_TEST);
 }
 
-void Displayer::next_frame()
+void Displayer::init_cube()
 {
-	frame_points = input_reader.next(camera_images);
-	
-	std::sort(frame_points.begin(), frame_points.end(), Pred());
-	
-	num_points = frame_points.size();
-
-	if(num_points != 0) //We only change the displayed points if the frame is not empty
-	{
-		frame_vertices.clear();
-
-		for( const auto& p : frame_points )
-		{
-			frame_vertices.push_back( Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} } );
-		}
-	}
-}
-
-bool Displayer::init()
-{
-	set_ogl();
-	input_reader.set_path(in_files_path, in_files_name);
-
-	std::ifstream in{cam_calibration_file_path};
-	in >> cam_calibration;
-
 	//Construct points for a cube
 	std::vector<Vertex> cube_vertices;
 	cube_vertices.reserve(8);
@@ -111,11 +86,8 @@ bool Displayer::init()
 		4, 5, 6, 6, 7, 4
     };
 
-	next_frame();
-
-	program.generate_vao_vbo<Vertex>(vaoID, vboID, num_points * sizeof(Vertex), frame_vertices.data());
 	program.generate_vao_vbo<Vertex>(cube_vaoID, cube_vboID, 8 * sizeof(Vertex), cube_vertices.data(), GL_STATIC_DRAW);
-	
+
 	glBindVertexArray(cube_vaoID);
 	glGenBuffers(1, &cube_indexBufferID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_indexBufferID);
@@ -124,7 +96,41 @@ bool Displayer::init()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
 
+void Displayer::next_frame()
+{
+	frame_points = input_reader.next(camera_images);
+	
+	//std::sort(frame_points.begin(), frame_points.end(), Pred());
+	
+	num_points = frame_points.size();
+
+	if(num_points != 0) //We only change the displayed points if the frame is not empty
+	{
+		frame_vertices.clear();
+
+		for( const auto& p : frame_points )
+		{
+			frame_vertices.push_back( Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} } );
+		}
+	}
+}
+
+bool Displayer::init()
+{
+	set_ogl();
+	init_cube();
+
+	input_reader.set_path(in_files_path, in_files_name);
+
+	std::ifstream in{cam_calibration_file_path};
+	in >> cam_calibration;
+
+	next_frame();
+
+	program.generate_vao_vbo<Vertex>(vaoID, vboID, num_points * sizeof(Vertex), frame_vertices.data());
+	
 	program.create_program_with_shaders(
 		vert_shader_path, 
 		frag_shader_path);
@@ -161,6 +167,20 @@ void Displayer::update()
 	}
 }
 
+void Displayer::draw_cube(const glm::mat4 &world_transform)
+{
+	alpha = 0.2f;
+	glUniform1f(alpha_loc, alpha);
+
+	glUseProgram( program.program_id() );
+	MVP = camera.GetViewProj() * world_transform;
+	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
+
+	glBindVertexArray(cube_vaoID);
+	glDrawElements(GL_TRIANGLES, 6 * 6, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(0);
+}
+
 
 void Displayer::render()
 {
@@ -170,16 +190,7 @@ void Displayer::render()
 	glUniform1f(alpha_loc, alpha);
 	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
 
-	alpha = 0.2f;
-	glUniform1f(alpha_loc, alpha);
-
-	glUseProgram( program.program_id() );
-	MVP = camera.GetViewProj() * glm::translate(glm::vec3(0, 0, 10)) * glm::scale(glm::vec3(5.0f));
-	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
-
-	glBindVertexArray(cube_vaoID);
-	glDrawElements(GL_TRIANGLES, 6 * 6, GL_UNSIGNED_SHORT, 0);
-	glBindVertexArray(0);
+	draw_cube(glm::translate(glm::vec3(0, 0, 10)) * glm::scale(glm::vec3(5.0f)));
 }
 
 //Event handling:

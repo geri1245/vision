@@ -47,7 +47,7 @@ private:
 
 	static const int num_of_cams = 6;
 
-	const GLfloat point_size = 15.0f;
+	const GLfloat point_size = 10.0f;
 
 	void set_ogl();
 	void next_frame();
@@ -57,6 +57,9 @@ private:
 	void key_up(SDL_KeyboardEvent& ev);
 	void mouse_move(SDL_MouseMotionEvent& ev);
 	void resize_window(int width, int height);
+
+	void init_cube();
+	void draw_cube(const glm::mat4 &world_transform);
 
 	int num_points, points_to_draw;
 	float alpha;
