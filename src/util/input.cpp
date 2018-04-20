@@ -19,13 +19,13 @@ std::vector<Point3D> InputReader::get_points(std::vector<cv::Mat> &camera_images
     {
         ret.push_back(p);
     }
-
+    /*
     for(int i = 0; i < 6; ++i)
     {
         std::string name = texture_name + std::to_string(i) + ".jpg";
         camera_images[i] = cv::imread(name, CV_LOAD_IMAGE_COLOR);
     }
-
+    */
     return ret;
 }
 

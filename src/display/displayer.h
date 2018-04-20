@@ -59,6 +59,7 @@ private:
 	void resize_window(int width, int height);
 
 	int num_points, points_to_draw;
+	float alpha;
 	bool is_over, is_paused;
 	Uint32 prev_tick;
 
@@ -69,7 +70,7 @@ private:
 	GLuint cube_vaoID, cube_vboID, cube_indexBufferID;
 	std::vector<cv::Mat> camera_images;
 
-	GLuint MVP_loc;
+	GLuint MVP_loc, alpha_loc;
 	glm::mat4 MVP;
 
 	Program program;
