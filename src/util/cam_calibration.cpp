@@ -60,7 +60,7 @@ glm::vec2 ImageCalibration::get_pixel_coords(const Point3D &p, int lidar_id)
         id = 1 - lidar_id;
     }
 
-    tmp = mat_vecs[id].mult_add(p);
+    tmp = mat_vecs[id].mult_add(to_vec3(p));
     tmp[0] /= tmp[2];
     tmp[1] /= tmp[2];
 

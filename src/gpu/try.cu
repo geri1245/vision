@@ -1,11 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <cmath>
-
-struct Point3D
-{
-    float x, y, z;
-};
+#include "../util/point_raw.h"
 
 //Cross product for float vector
 __device__ void gpu_cross_3_vec(float *u, float *v, float *res)
@@ -53,13 +49,12 @@ __device__ void normalize(Point3D *p)
 
 __device__ Point3D gpu_add_points(Point3D a, Point3D b)
 {
-    Point3D d = {a.x + b.x, a.y + b.y, a.z + b.z};
-    return d;
+    return (Point3D) {a.x + b.x, a.y + b.y, a.z + b.z};
 }
 
 __device__ Point3D gpu_sub_points(Point3D a, Point3D b)
 {
-    Point3D d = {a.x - b.x, a.y - b.y, a.z - b.z};
+    Point3D d = (Point3D) {a.x - b.x, a.y - b.y, a.z - b.z};
     return d;
 }
 
@@ -154,8 +149,8 @@ int main()
     gpu_cross_3_vec_test<<<1, 1>>>(gpu_u, gpu_v, gpu_resu);
     
     //Plane coefficients test
-    Point3D direction = {5, 2, -3};
-    Point3D p1 = {1, -1, 3}, p2 = {4, 1, -2};
+    Point3D direction = (Point3D) {5, 2, -3};
+    Point3D p1 = (Point3D) {1, -1, 3}, p2 = (Point3D) {4, 1, -2};
     float *gpu_coeffs;
     float coeffs[4];
 
@@ -201,7 +196,7 @@ int main()
     //*****************************
 
     //Point distance from plane test
-    Point3D point = {2, 3, 1};
+    Point3D point = (Point3D){2, 3, 1};
     float coeffs_distance[4] = {1, -2, 3, -5};
     float *gpu_dist, *gpu_coeffs_distance, dist;
 

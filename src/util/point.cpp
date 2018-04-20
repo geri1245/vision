@@ -1,23 +1,18 @@
 #include "point.h"
 
-Point3D::Point3D(float x_, float y_, float z_) :
-    x(x_), y(y_), z(z_) {}
-
-Point3D::~Point3D() {}
-
-Point3D::operator glm::vec3() const
+glm::vec3 to_vec3(const Point3D &p)
 {
-    return glm::vec3{x, y, z};
+    return glm::vec3{p.x, p.y, p.z};
 }
 
 Point3D operator+(const Point3D &lhs, const Point3D &rhs)
 {
-    return Point3D(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+    return Point3D{lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
 }
 
 Point3D operator-(const Point3D &lhs, const Point3D &rhs)
 {
-    return Point3D(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+    return Point3D{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }
 
 bool operator==(const Point3D &lhs, const Point3D &rhs)
@@ -29,22 +24,22 @@ bool operator==(const Point3D &lhs, const Point3D &rhs)
 
 Point3D operator*(const Point3D &lhs, float rhs)
 {
-    return Point3D(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs);
+    return Point3D{lhs.x * rhs, lhs.y * rhs, lhs.z * rhs};
 }
 
 Point3D operator/(const Point3D &lhs, float rhs)
 {
-    return Point3D(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs);
+    return Point3D{lhs.x / rhs, lhs.y / rhs, lhs.z / rhs};
 }
 
 Point3D operator+(const Point3D &lhs, float rhs)
 {
-    return Point3D(lhs.x + rhs, lhs.y + rhs, lhs.z + rhs);
+    return Point3D{lhs.x + rhs, lhs.y + rhs, lhs.z + rhs};
 }
 
 Point3D operator-(const Point3D &lhs, float rhs)
 {
-    return Point3D(lhs.x - rhs, lhs.y - rhs, lhs.z - rhs);
+    return Point3D{lhs.x - rhs, lhs.y - rhs, lhs.z - rhs};
 }
 
 std::ostream& operator<<(std::ostream &os, const Point3D &point)
