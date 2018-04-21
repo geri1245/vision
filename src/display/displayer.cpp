@@ -12,7 +12,7 @@
 #include "../util/debug.hpp"
 
 //Predicate for Point3D comparison
-struct Pred
+struct ComparePointByXAndZ
 {
 	bool operator()(const Point3D &lhs, const Point3D &rhs)
 	{
@@ -102,7 +102,7 @@ void Displayer::next_frame()
 {
 	frame_points = input_reader.next(camera_images);
 	
-	//std::sort(frame_points.begin(), frame_points.end(), Pred());
+	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
 	
 	num_points = frame_points.size();
 
