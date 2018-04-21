@@ -96,7 +96,10 @@ int get_close_points_indices(
 
     for(unsigned int i = 0; i < points.size(); ++i)
     {
-        if(distance_from_plane(points[i], coeffs, tmp_sqrt) < epsilon)
+        Point3D tmp = points[i];
+        if( (tmp.x > 1.2 || tmp.x < -0.2) &&
+            (tmp.z > 0.3 || tmp.z < -1.1) &&
+            distance_from_plane(tmp, coeffs, tmp_sqrt) < epsilon)
         {
             ++num_of_close_points;
             close_points_indices.push_back(i);

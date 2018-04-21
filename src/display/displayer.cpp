@@ -103,7 +103,7 @@ void Displayer::next_frame()
 {
 	frame_points = input_reader.next(camera_images);
 	
-	std::vector<int> indices = find_plane(frame_points, 5000, 0.03);
+	std::vector<int> indices = find_plane(frame_points, 10000, 0.1);
 
 	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
 	
@@ -198,7 +198,8 @@ void Displayer::render()
 	glUniform1f(alpha_loc, alpha);
 	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
 
-	draw_cube(glm::translate(glm::vec3(0, 0, 10)) * glm::scale(glm::vec3(5.0f)));
+	float t = SDL_GetTicks() / 1000.0f;
+	draw_cube(glm::translate(glm::vec3(0.5 + 0.7 * cos(t), 0, -0.4 + 0.7 * sin(t))));
 }
 
 //Event handling:
