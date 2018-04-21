@@ -26,7 +26,7 @@ test :
 
 .PHONY : clean
 clean :
-	-rm -f input/*.o util/*.o test/*.o display/*.o *.o main
+	-rm -f input/*.o util/*.o test/*.o display/*.o gpu/*.o *.o main
 
 .PHONY: rebuild
 rebuild : clean all

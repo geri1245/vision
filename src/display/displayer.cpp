@@ -10,6 +10,7 @@
 #include "displayer.h"
 #include "../util/input.h"
 #include "../util/debug.hpp"
+#include "../gpu/cpu_ransac_prep.h"
 
 //Predicate for Point3D comparison
 struct ComparePointByXAndZ
@@ -102,6 +103,8 @@ void Displayer::next_frame()
 {
 	frame_points = input_reader.next(camera_images);
 	
+	std::vector<int> indices = find_plane(frame_points, 5000, 0.03);
+
 	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
 	
 	num_points = frame_points.size();
@@ -114,6 +117,11 @@ void Displayer::next_frame()
 		{
 			frame_vertices.push_back( Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} } );
 		}
+	}
+
+	for(int n : indices)
+	{
+		frame_vertices[n].col = {1.0, 0, 0};
 	}
 }
 
