@@ -214,7 +214,7 @@ std::vector<int> find_plane(
 int main()
 {
     //Parameters:
-    const int iter_num = 5000;
+    const int iter_num = 2048 * 10;
     std::vector<Point3D> points;
     const std::vector<int> gpu_sum_result;
     const float epsilon = 0.015;
@@ -242,46 +242,49 @@ int main()
         num_of_close_points
     );
 */
+    std::vector<int> tmp;
+    tmp.reserve(iter_num);
 
-    num_of_close_points = get_close_points_indices(
-        max_ind,
-        points,
-        randoms,
-        epsilon,
-        close_points_indices
-    );
-    
-    std::cout << num_of_close_points << "\n" <<
-        points[ randoms[2 * max_ind] ] <<
-        points[ randoms[2 * max_ind + 1] ] << "\n";
-    
-    std::vector<Point3D> vec;
-    vec.reserve(num_of_close_points);
-    for(auto n : close_points_indices)
-    {
-        vec.push_back(points[n]);
-    }
-    
-    std::sort(vec.begin(), vec.end(), ComparePointByXAndZ());
 
-    for(const auto &p : vec)
+    for(int i = 0; i < iter_num; ++i)
     {
-        std::cout << p;
+        tmp.push_back(
+            get_close_points_indices(
+                i,
+                points,
+                randoms,
+                epsilon,
+                close_points_indices));
     }
 
+    for(auto n : tmp)
+    {
+        std::cout << n << " ";
+    }
+
+    
 
 
     //GPU result:
     std::cout << "GPU result:\n";
 
+    tmp.clear();
+    tmp.resize(200);
+
     num_of_close_points = get_points_close_to_plane(
         max_ind,
+        iter_num,
         points,
         randoms,
         epsilon,
-        close_points_indices
+        tmp
     );
-    
+
+    for(auto n : tmp)
+    {
+        std::cout << n << " ";
+    }
+    /*
     std::cout << num_of_close_points << "\n" <<
         points[ randoms[2 * max_ind] ] <<
         points[ randoms[2 * max_ind + 1] ] << "\n";
@@ -299,6 +302,6 @@ int main()
     {
         std::cout << p;
     }
-    
+    */
     return 0;//close_points_indices;
 }

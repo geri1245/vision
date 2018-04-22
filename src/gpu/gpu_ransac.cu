@@ -113,13 +113,14 @@ __global__ void gpu_count_close_points(
 } 
 
 int get_points_close_to_plane(
-    int index, 
+    int index,
+    int iter_num,
     const std::vector<Point3D> &points,
     const std::vector<int> &randoms,
     float epsilon,
     std::vector<int> &close_points_indices)
 {
-    //const int num_of_threads = 512;
+    const int num_of_threads = 512;
     //const int num = 1024 * 10;
     const int max_close_points = 500;
     const int num_of_points = points.size();
@@ -133,19 +134,19 @@ int get_points_close_to_plane(
     cudaMalloc((void **) &gpu_randoms, randoms.size() * sizeof(int));
     cudaMalloc((void **) &gpu_valid_points, num_of_points * sizeof(int));
     cudaMalloc((void **) &gpu_close_points, max_close_points * sizeof(int));
-    cudaMalloc((void **) &gpu_num_of_close_points, num_of_points * sizeof(int));
+    cudaMalloc((void **) &gpu_num_of_close_points, iter_num * sizeof(int));
 
     cudaMemcpy(gpu_points, points.data(), num_of_points * sizeof(Point3D), cudaMemcpyHostToDevice);
     cudaMemcpy(gpu_randoms, randoms.data(), randoms.size() * sizeof(int), cudaMemcpyHostToDevice);
     
-    gpu_count_close_points<<<1, 1>>>(
+    gpu_count_close_points<<<iter_num / num_of_threads, num_of_threads>>>(
         gpu_points, gpu_randoms, gpu_valid_points, 
         num_of_points, epsilon, gpu_num_of_close_points);
 
     cudaDeviceSynchronize();
 
-    close_points_indices.resize(num_of_points);
-    cudaMemcpy(close_points_indices.data(), gpu_num_of_close_points, num_of_points * sizeof(int), cudaMemcpyDeviceToHost);
+    close_points_indices.resize(iter_num);
+    cudaMemcpy(close_points_indices.data(), gpu_num_of_close_points, iter_num * sizeof(int), cudaMemcpyDeviceToHost);
 
     cudaFree(gpu_points);
     cudaFree(gpu_randoms);
