@@ -3,6 +3,8 @@
 #include <algorithm>
 
 #include "cpu_ransac_prep.h"
+#include "../util/input.h"
+#include "gpu_ransac.cuh"
 
 
 namespace{
@@ -205,11 +207,12 @@ int search_largest_plane(
 }
 
 }
-
+/*
 std::vector<int> find_plane(
     const std::vector<Point3D> &points, 
-    int iter_num, float epsilon)
-{/*
+    int iter_num, float epsilon)*/
+int main()
+{
     //Parameters:
     const int iter_num = 5000;
     std::vector<Point3D> points;
@@ -221,14 +224,15 @@ std::vector<int> find_plane(
     std::vector<cv::Mat> a;
     points = in.next(a);
     const int num_of_points = points.size();
-    */
+    
     std::vector<int> randoms = get_random_numbers(2 * iter_num, 0, points.size() - 1);
     
-    int max_ind;// = 70;//max_index(gpu_sum_result);
+    int max_ind = 70;//max_index(gpu_sum_result);
     int num_of_close_points;
     std::vector<int> close_points_indices;
     close_points_indices.reserve(700);
 
+/*
     max_ind = search_largest_plane(
         points,
         randoms,
@@ -237,8 +241,16 @@ std::vector<int> find_plane(
         close_points_indices,
         num_of_close_points
     );
+*/
 
-    /*
+    num_of_close_points = get_close_points_indices(
+        max_ind,
+        points,
+        randoms,
+        epsilon,
+        close_points_indices
+    );
+    
     std::cout << num_of_close_points << "\n" <<
         points[ randoms[2 * max_ind] ] <<
         points[ randoms[2 * max_ind + 1] ] << "\n";
@@ -254,8 +266,39 @@ std::vector<int> find_plane(
 
     for(const auto &p : vec)
     {
-        //std::cout << p;
+        std::cout << p;
     }
-    */
-    return close_points_indices;
+
+
+
+    //GPU result:
+    std::cout << "GPU result:\n";
+
+    num_of_close_points = get_points_close_to_plane(
+        max_ind,
+        points,
+        randoms,
+        epsilon,
+        close_points_indices
+    );
+    
+    std::cout << num_of_close_points << "\n" <<
+        points[ randoms[2 * max_ind] ] <<
+        points[ randoms[2 * max_ind + 1] ] << "\n";
+    
+    vec.clear();
+    vec.reserve(num_of_close_points);
+    for(auto n : close_points_indices)
+    {
+        vec.push_back(points[n]);
+    }
+    
+    std::sort(vec.begin(), vec.end(), ComparePointByXAndZ());
+
+    for(const auto &p : vec)
+    {
+        std::cout << p;
+    }
+    
+    return 0;//close_points_indices;
 }

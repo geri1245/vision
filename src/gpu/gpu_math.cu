@@ -5,7 +5,7 @@
 #include "gpu_math.cuh"
 
 //Cross product for float vector
-__device__ void gpu_cross_vec3(float *u, float *v, float *res)
+__device__ void gpu_cross_vec3(const float *u, const float *v, float *res)
 {
     res[0] = u[1] * v[2] - u[2] * v[1];
     res[1] = u[2] * v[0] - u[0] * v[2];
@@ -22,7 +22,7 @@ __device__ Point3D gpu_cross_point(Point3D u, Point3D v)
     };
 }
 
-__device__ float gpu_dot_vec3(float *u, float *v)
+__device__ float gpu_dot_vec3(const float *u, const float *v)
 {
     return u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
 }
@@ -32,7 +32,7 @@ __device__ float gpu_dot_point(Point3D u, Point3D v)
     return u.x * v.x + u.y * v.y + u.z * v.z;
 }
 
-__device__ void gpu_matrix_mul_3x3(float *A, float *B, float *result)
+__device__ void gpu_matrix_mul_3x3(const float *A, const float *B, float *result)
 {
     for(int j = 0; j < 3; ++j)
     {
@@ -47,14 +47,14 @@ __device__ void gpu_matrix_mul_3x3(float *A, float *B, float *result)
     }
 }
 
-__device__ void gpu_mat_vec_mul(float *mat, float *vec, float *result)
+__device__ void gpu_mat_vec_mul(const float *mat, const float *vec, float *result)
 {
     result[0] = mat[0] * vec[0] + mat[1] * vec[1] + mat[2] * vec[2];
     result[1] = mat[3] * vec[0] + mat[4] * vec[1] + mat[5] * vec[2];
     result[2] = mat[6] * vec[0] + mat[7] * vec[1] + mat[8] * vec[2];
 }
 
-__device__ Point3D gpu_mat_vec_mul(float *mat, Point3D vec)
+__device__ Point3D gpu_mat_vec_mul(const float *mat, Point3D vec)
 {
     return (Point3D) {
         mat[0] * vec.x + mat[1] * vec.y + mat[2] * vec.z,
@@ -117,10 +117,4 @@ __device__ void gpu_plane_coeffs(Point3D vec, Point3D p1, Point3D p2, float *coe
     coeffs[1] = normal.y;
     coeffs[2] = normal.z;
     coeffs[3] = -normal.x * p1.x - normal.y * p1.y - normal.z * p1.z;
-}
-
-int main()
-{
-    
-    return 0;
 }
