@@ -12,25 +12,6 @@
 #include "../util/debug.hpp"
 #include "../gpu/cpu_ransac_prep.h"
 
-//Predicate for Point3D comparison
-struct ComparePointByXAndZ
-{
-	bool operator()(const Point3D &lhs, const Point3D &rhs)
-	{
-		if( lhs.x < rhs.x )
-		{
-			return true;
-		}
-		else if ( lhs.x > rhs.x )
-		{
-			return false;
-		}
-		else
-		{
-			return lhs.z < rhs.z;
-		}
-	}
-};
 
 Displayer::Displayer() : camera_images(num_of_cams), cam_calibration(num_of_cams)
 {

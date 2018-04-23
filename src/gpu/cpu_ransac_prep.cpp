@@ -1,23 +1,14 @@
 #include <random>
 #include <iostream>
-#include <algorithm>
 
 #include "cpu_ransac_prep.h"
 #include "../util/input.h"
 #include "gpu_ransac.cuh"
+#include "cpu_math.h"
 
-
-namespace{
-
-int max_index(const std::vector<int> &vec)
+namespace
 {
-    return std::distance(
-        vec.begin(), 
-        std::max_element(vec.begin(), vec.end())
-    );
-}
-
-std::vector<int> get_random_numbers(int num, int min, int max)
+    std::vector<int> get_random_numbers(int num, int min, int max)
 {
     std::random_device rd;
     std::mt19937 mt(rd());
@@ -31,182 +22,8 @@ std::vector<int> get_random_numbers(int num, int min, int max)
 
     return randoms;
 }
-
-float distance_from_plane(Point3D p, const std::vector<float> &coeffs, float sqrt)
-{
-    //d = abs( A*x1 + B*y1 + C*z1 ) / sqrt(A^2 + B^2 + C^2) 
-    return 
-        abs(coeffs[0] * p.x + coeffs[1] * p.y + coeffs[2] * p.z + coeffs[3]) /
-        sqrt;    
 }
 
-Point3D cross_product(const Point3D &u, const Point3D &v)
-{
-    return {
-        u.y * v.z - u.z * v.y,
-        u.z * v.x - u.x * v.z,
-        u.x * v.y - u.y * v.x
-    };
-}
-
-std::vector<float> plane_coeffs(
-    const Point3D &vec, 
-    const Point3D &p1, 
-    const Point3D &p2)
-{
-    std::vector<float> coeffs;
-    coeffs.reserve(4);
-    Point3D vec2 = p1 - p2; //Calculate another direction vector
-    
-    //Calculating the normal vector of the plane
-    Point3D normal = cross_product(vec, vec2);
-
-    coeffs.push_back(normal.x);
-    coeffs.push_back(normal.y);
-    coeffs.push_back(normal.z);
-    coeffs.push_back(-normal.x * p1.x - normal.y * p1.y - normal.z * p1.z);
-
-    return coeffs;
-}
-
-
-//Returns the number of points that are within epsilon
-//distance of the plane created by points[ randoms[index] ],
-//points[ randoms[index + 1] ], and the direction up ({0, 1, 0}).
-//Also populates close_points_indices vector, that contains
-//the indices of the points close enough to the plane.
-int get_close_points_indices(
-    int index, 
-    const std::vector<Point3D> &points,
-    const std::vector<int> &randoms,
-    float epsilon,
-    std::vector<int> &close_points_indices)
-{
-    const Point3D p1 = points[ randoms[2 * index] ];
-    const Point3D p2 = points[ randoms[2 * index + 1] ];
-    const Point3D up = {0, 1, 0};
-
-    const std::vector<float> coeffs = plane_coeffs(up, p1, p2);
-    float tmp_sqrt = sqrt(      //sqrt(A^2 + B^2 + C^2)
-        coeffs[0] * coeffs[0] + 
-        coeffs[1] * coeffs[1] + 
-        coeffs[2] * coeffs[2]);
-    
-    close_points_indices.clear();
-    close_points_indices.reserve(300);
-    int num_of_close_points = 0;
-
-    for(unsigned int i = 0; i < points.size(); ++i)
-    {
-        Point3D tmp = points[i];
-        if( (tmp.x > 1.2 || tmp.x < -0.2) &&
-            (tmp.z > 0.3 || tmp.z < -1.1) &&
-            distance_from_plane(tmp, coeffs, tmp_sqrt) < epsilon)
-        {
-            ++num_of_close_points;
-            close_points_indices.push_back(i);
-        }
-    }
-
-    return num_of_close_points;
-}
-
-//Same as above, but doesn't store the point indices
-int count_close_points(
-    int index, 
-    const std::vector<Point3D> &points,
-    const std::vector<int> &randoms,
-    float epsilon)
-{
-    const Point3D p1 = points[ randoms[2 * index] ];
-    const Point3D p2 = points[ randoms[2 * index + 1] ];
-    const Point3D up = {0, 1, 0};
-
-    const std::vector<float> coeffs = plane_coeffs(up, p1, p2);
-    float tmp_sqrt = sqrt(      //sqrt(A^2 + B^2 + C^2)
-        coeffs[0] * coeffs[0] + 
-        coeffs[1] * coeffs[1] + 
-        coeffs[2] * coeffs[2]);
-    
-    int num_of_close_points = 0;
-
-    for(size_t i = 0; i < points.size(); ++i)
-    {
-        if(distance_from_plane(points[i], coeffs, tmp_sqrt) < epsilon)
-        {
-            ++num_of_close_points;
-        }
-    }
-
-    return num_of_close_points;
-}
-
-struct ComparePointByXAndZ
-{
-	bool operator()(const Point3D &lhs, const Point3D &rhs)
-	{
-		if( lhs.x < rhs.x )
-		{
-			return true;
-		}
-		else if ( lhs.x > rhs.x )
-		{
-			return false;
-		}
-		else
-		{
-			return lhs.z < rhs.z;
-		}
-	}
-};
-
-
-//Returns an index "a" for which 
-//points[ random[a] ] and points[ random[a + 1] ] make 
-//the largest plane from points 
-//Also sets num_of_close_points to the number of points close enough
-//And populates plane_points_indices with the indices of the points
-int search_largest_plane(
-    const std::vector<Point3D> &points,
-    const std::vector<int> &randoms,
-    int iter_num,
-    float epsilon,
-    std::vector<int> &plane_points_indices,
-    int &num_of_close_points)
-{
-    int max_ind = 0, max_num = 0;
-    int local_num_of_close_points;
-
-    for(int i = 0; i < iter_num; i +=2)
-    {
-        local_num_of_close_points = count_close_points(
-            i,
-            points,
-            randoms,
-            epsilon
-        );
-        if(local_num_of_close_points > max_num)
-        {
-            max_num = local_num_of_close_points;
-            max_ind = i;
-        }
-    }
-
-    plane_points_indices.clear();
-    plane_points_indices.reserve(max_num);
-
-    num_of_close_points = get_close_points_indices(
-        max_ind,
-        points,
-        randoms,
-        epsilon,
-        plane_points_indices
-    );
-
-    return max_ind;
-}
-
-}
 /*
 std::vector<int> find_plane(
     const std::vector<Point3D> &points, 
@@ -218,6 +35,7 @@ int main()
     std::vector<Point3D> points;
     const std::vector<int> gpu_sum_result;
     const float epsilon = 0.015;
+    const int threshhold = 190;
 
     DirInputReader in;
     in.set_path("../../data1", "fusioned_no_color.xyz");
@@ -227,7 +45,7 @@ int main()
     
     std::vector<int> randoms = get_random_numbers(2 * iter_num, 0, points.size() - 1);
     
-    int max_ind = 70;//max_index(gpu_sum_result);
+    int max_ind;
     int num_of_close_points;
     std::vector<int> close_points_indices;
     close_points_indices.reserve(700);
@@ -242,11 +60,13 @@ int main()
         num_of_close_points
     );
 */
-    std::vector<int> tmp;
-    tmp.reserve(iter_num);
+    std::vector<int> gpu_results;
+    std::vector<std::vector<int> > plane_points;
+    gpu_results.reserve(iter_num);
+    plane_points.reserve(20);
 
 
-    for(int i = 0; i < iter_num; ++i)
+    /*for(int i = 0; i < iter_num; ++i)
     {
         tmp.push_back(
             get_close_points_indices(
@@ -260,7 +80,7 @@ int main()
     for(auto n : tmp)
     {
         std::cout << n << " ";
-    }
+    }*/
 
     
 
@@ -268,19 +88,33 @@ int main()
     //GPU result:
     std::cout << "GPU result:\n";
 
-    tmp.clear();
-    tmp.resize(200);
+    for(int i = 0; i < 500; ++i)
+    {
+        num_of_close_points = get_points_close_to_plane(
+            max_ind,
+            iter_num,
+            points,
+            randoms,
+            epsilon,
+            gpu_results
+        );
 
-    num_of_close_points = get_points_close_to_plane(
-        max_ind,
-        iter_num,
-        points,
-        randoms,
-        epsilon,
-        tmp
-    );
+        auto it = std::max_element(gpu_results.begin(), gpu_results.end());
+        if(*it < threshhold)
+        {
+            break;
+            std::vector<int> tmp;
+            tmp.reserve(200);
+            get_close_points_indices(
+                *it, points,
+                randoms, epsilon,
+                tmp);
+            plane_points.push_back(std::move(tmp));
+        }
+    }
 
-    for(auto n : tmp)
+    std::sort(gpu_results.begin(), gpu_results.end(), std::greater<int>());
+    for(auto n : gpu_results)
     {
         std::cout << n << " ";
     }

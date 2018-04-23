@@ -8,6 +8,25 @@
 
 #include "point_raw.h"
 
+struct ComparePointByXAndZ
+{
+	bool operator()(const Point3D &lhs, const Point3D &rhs)
+	{
+		if( lhs.x < rhs.x )
+		{
+			return true;
+		}
+		else if ( lhs.x > rhs.x )
+		{
+			return false;
+		}
+		else
+		{
+			return lhs.z < rhs.z;
+		}
+	}
+};
+
 struct Vertex
 {
 	glm::vec3 pos;

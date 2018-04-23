@@ -93,6 +93,13 @@ __device__ int gpu_count_points_close_to_points(
     return num_of_close_points;
 }
 
+__global__ void set(bool *values, int *indices, int num)
+{
+    int ind = threadIdx.x + blockIdx.x * blockDim.x;
+    if(ind < num)
+        values[ indices[ind] ] = false;
+}
+
 
 __global__ void gpu_count_close_points(
     const Point3D *points,
@@ -104,7 +111,7 @@ __global__ void gpu_count_close_points(
 {
     int ind = threadIdx.x + blockIdx.x * blockDim.x;
 
-    num_of_close_points[ind] = gpu_count_points_close_to_points(
+    num_of_close_points[ind] = gpu_count_points_close_to_plane(
                                    randoms[2 * ind],
                                    randoms[2 * ind + 1],
                                    points,
@@ -121,8 +128,6 @@ int get_points_close_to_plane(
     std::vector<int> &close_points_indices)
 {
     const int num_of_threads = 512;
-    //const int num = 1024 * 10;
-    const int max_close_points = 500;
     const int num_of_points = points.size();
 
     Point3D *gpu_points;
@@ -133,13 +138,12 @@ int get_points_close_to_plane(
     cudaMalloc((void **) &gpu_points, num_of_points * sizeof(Point3D));
     cudaMalloc((void **) &gpu_randoms, randoms.size() * sizeof(int));
     cudaMalloc((void **) &gpu_valid_points, num_of_points * sizeof(int));
-    cudaMalloc((void **) &gpu_close_points, max_close_points * sizeof(int));
     cudaMalloc((void **) &gpu_num_of_close_points, iter_num * sizeof(int));
 
     cudaMemcpy(gpu_points, points.data(), num_of_points * sizeof(Point3D), cudaMemcpyHostToDevice);
     cudaMemcpy(gpu_randoms, randoms.data(), randoms.size() * sizeof(int), cudaMemcpyHostToDevice);
     
-    gpu_count_close_points<<<iter_num / num_of_threads, num_of_threads>>>(
+    gpu_count_close_plane<<<iter_num / num_of_threads, num_of_threads>>>(
         gpu_points, gpu_randoms, gpu_valid_points, 
         num_of_points, epsilon, gpu_num_of_close_points);
 
@@ -150,7 +154,6 @@ int get_points_close_to_plane(
 
     cudaFree(gpu_points);
     cudaFree(gpu_randoms);
-    cudaFree(gpu_close_points);
     cudaFree(gpu_num_of_close_points);
 
     return 0;
