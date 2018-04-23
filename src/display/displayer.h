@@ -47,7 +47,7 @@ private:
 
 	static const int num_of_cams = 6;
 
-	const GLfloat point_size = 10.0f;
+	const GLfloat point_size = 7.0f;
 
 	void set_ogl();
 	void next_frame();
@@ -71,14 +71,12 @@ private:
 
 	GLuint vaoID, vboID;
 	GLuint cube_vaoID, cube_vboID, cube_indexBufferID;
-	std::vector<cv::Mat> camera_images;
 
 	GLuint MVP_loc, alpha_loc;
 	glm::mat4 MVP;
 
 	Program program;
 	DirInputReader input_reader;
-	CamCalibration cam_calibration;
 	gCamera camera;
 
 	int mouse_x;

@@ -13,7 +13,7 @@
 #include "../gpu/cpu_ransac_prep.h"
 
 
-Displayer::Displayer() : camera_images(num_of_cams), cam_calibration(num_of_cams)
+Displayer::Displayer()
 {
 	vaoID     = 0;
 	vboID     = 0;
@@ -31,7 +31,6 @@ Displayer::~Displayer()
 
 void Displayer::set_ogl()
 {
-	//glClearColor(0.125f, 0.25f, 0.5f, 1.0f);
 	glClearColor(0, 0, 0, 1.0f);
 	glPointSize(point_size);
 
@@ -82,7 +81,7 @@ void Displayer::init_cube()
 
 void Displayer::next_frame()
 {
-	frame_points = input_reader.next(camera_images);
+	frame_points = input_reader.next();
 	
 	std::vector < std::vector<int> > planes = find_plane(frame_points, 10000, 0.002, 85);
 
@@ -115,9 +114,6 @@ bool Displayer::init()
 	init_cube();
 
 	input_reader.set_path(in_files_path, in_files_name);
-
-	std::ifstream in{cam_calibration_file_path};
-	in >> cam_calibration;
 
 	next_frame();
 

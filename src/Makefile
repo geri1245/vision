@@ -8,7 +8,7 @@ cflags = -Wall -Wextra -std=c++17 -O2
 SOURCEDIR = .
 BUILDDIR  = ../build
 
-cpps = $(shell find -not -path "./test/*" -name '*.cpp')
+cpps = $(shell find -not -path "./test/*" -not -path "./colorer/*" -name '*.cpp')
 hpps = display/program.hpp
 cus = $(shell find -not -path "./test/*" -name '*.cu')
 objects := $(cpps:%.cpp=%.o)

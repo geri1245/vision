@@ -40,6 +40,9 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "*.cuh": "cpp"
+        "*.cuh": "cpp",
+        "cstdarg": "cpp",
+        "functional": "cpp",
+        "numeric": "cpp"
     }
 }
