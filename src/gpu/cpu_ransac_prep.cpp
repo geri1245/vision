@@ -25,7 +25,7 @@ namespace
 }
 
 /*
-std::vector<int> find_plane(
+std::vector< std::vector<int> > find_plane(
     const std::vector<Point3D> &points, 
     int iter_num, float epsilon)*/
 int main()
@@ -41,15 +41,9 @@ int main()
     in.set_path("../../data1", "fusioned_no_color.xyz");
     std::vector<cv::Mat> a;
     points = in.next(a);
-    const int num_of_points = points.size();
     
     std::vector<int> randoms = get_random_numbers(2 * iter_num, 0, points.size() - 1);
     
-    int max_ind;
-    int num_of_close_points;
-    std::vector<int> close_points_indices;
-    close_points_indices.reserve(700);
-
 /*
     max_ind = search_largest_plane(
         points,
@@ -87,37 +81,66 @@ int main()
 
     //GPU result:
     std::cout << "GPU result:\n";
-
-    for(int i = 0; i < 500; ++i)
-    {
-        num_of_close_points = get_points_close_to_plane(
-            max_ind,
+    get_points_close_to_plane(
             iter_num,
             points,
             randoms,
             epsilon,
+            threshhold,
+            plane_points
+        );
+
+    for(const auto &v : plane_points)
+    {
+        std::cout << "\nsize: " << v.size() << "\n";
+        for(int i : v)
+        {
+            std::cout << i << " ";
+        }
+    }
+    
+    /*
+    for(int i = 0; i < 2; ++i)
+    {
+        get_points_close_to_plane(
+            iter_num,
+            points,
+            randoms,
+            epsilon,
+            threshhold,
             gpu_results
         );
 
         auto it = std::max_element(gpu_results.begin(), gpu_results.end());
+        std::cout << "max num: " << *it << "\n";
         if(*it < threshhold)
-        {
-            break;
-            std::vector<int> tmp;
-            tmp.reserve(200);
-            get_close_points_indices(
-                *it, points,
-                randoms, epsilon,
-                tmp);
-            plane_points.push_back(std::move(tmp));
-        }
+            break; //Not a big enough plane, we stop
+
+        std::vector<int> tmp;
+        tmp.reserve(200);
+        get_close_points_indices(
+            std::distance(gpu_results.begin(), it), points,
+            randoms, epsilon,
+            tmp);
+        plane_points.push_back(std::move(tmp));
     }
 
+    for(const auto &v : plane_points)
+    {
+        std::cout << "\nsize:" << v.size() << "\n"; 
+        std::cout << "indices: \n";
+        for(int i : v)
+        {
+            std::cout << i << " ";
+        }
+    }*/
+
+/*
     std::sort(gpu_results.begin(), gpu_results.end(), std::greater<int>());
     for(auto n : gpu_results)
     {
         std::cout << n << " ";
-    }
+    }*/
     /*
     std::cout << num_of_close_points << "\n" <<
         points[ randoms[2 * max_ind] ] <<

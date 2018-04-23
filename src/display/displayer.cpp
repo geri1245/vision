@@ -84,7 +84,7 @@ void Displayer::next_frame()
 {
 	frame_points = input_reader.next(camera_images);
 	
-	std::vector<int> indices = find_plane(frame_points, 10000, 0.1);
+	std::vector < std::vector<int> > planes = find_plane(frame_points, 10000, 0.1);
 
 	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
 	
@@ -100,9 +100,12 @@ void Displayer::next_frame()
 		}
 	}
 
-	for(int n : indices)
+	for(const auto &v : planes)
 	{
+		for(int n : v)
+		{
 		frame_vertices[n].col = {1.0, 0, 0};
+		}
 	}
 }
 

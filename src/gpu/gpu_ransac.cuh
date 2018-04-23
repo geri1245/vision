@@ -5,11 +5,11 @@
 #include "../util/point_raw.h"
 
 int get_points_close_to_plane(
-    int index,
     int iter_num,
     const std::vector<Point3D> &points,
     const std::vector<int> &randoms,
     float epsilon,
-    std::vector<int> &close_points_indices);
+    int threshhold,
+    std::vector< std::vector<int> > &plane_points);
 
 #endif
