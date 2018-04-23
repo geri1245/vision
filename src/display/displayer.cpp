@@ -84,7 +84,7 @@ void Displayer::next_frame()
 {
 	frame_points = input_reader.next(camera_images);
 	
-	std::vector < std::vector<int> > planes = find_plane(frame_points, 10000, 0.1);
+	std::vector < std::vector<int> > planes = find_plane(frame_points, 10000, 0.002, 85);
 
 	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
 	

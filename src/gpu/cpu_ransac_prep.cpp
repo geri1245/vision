@@ -24,11 +24,13 @@ namespace
 }
 }
 
-/*
+
 std::vector< std::vector<int> > find_plane(
+//int main(
     const std::vector<Point3D> &points, 
-    int iter_num, float epsilon)*/
-int main()
+    int iter_num, float epsilon, int threshhold)
+{
+/*int main()
 {
     //Parameters:
     const int iter_num = 2048 * 10;
@@ -40,7 +42,7 @@ int main()
     DirInputReader in;
     in.set_path("../../data1", "fusioned_no_color.xyz");
     std::vector<cv::Mat> a;
-    points = in.next(a);
+    points = in.next(a);*/
     
     std::vector<int> randoms = get_random_numbers(2 * iter_num, 0, points.size() - 1);
     
@@ -54,10 +56,8 @@ int main()
         num_of_close_points
     );
 */
-    std::vector<int> gpu_results;
     std::vector<std::vector<int> > plane_points;
-    gpu_results.reserve(iter_num);
-    plane_points.reserve(20);
+    plane_points.reserve(10);
 
 
     /*for(int i = 0; i < iter_num; ++i)
@@ -80,7 +80,7 @@ int main()
 
 
     //GPU result:
-    std::cout << "GPU result:\n";
+    //std::cout << "GPU result:\n";
     get_points_close_to_plane(
             iter_num,
             points,
@@ -90,14 +90,14 @@ int main()
             plane_points
         );
 
-    for(const auto &v : plane_points)
+    /*for(const auto &v : plane_points)
     {
         std::cout << "\nsize: " << v.size() << "\n";
         for(int i : v)
         {
             std::cout << i << " ";
         }
-    }
+    }*/
     
     /*
     for(int i = 0; i < 2; ++i)
@@ -160,5 +160,6 @@ int main()
         std::cout << p;
     }
     */
-    return 0;//close_points_indices;
+    //return 0;
+    return std::move(plane_points);//close_points_indices;
 }

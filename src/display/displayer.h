@@ -40,9 +40,9 @@ private:
 	const std::string texture_path    = "../data1/calibration.txt";
 	//const std::string in_files_path    = "../data2";
 	
-	const std::string in_files_name    = "fusioned_no_color.xyz";
+	//const std::string in_files_name    = "fusioned_no_color.xyz";
 	//const std::string in_files_name    = ".xyz";
-	//const std::string in_files_name    = "lidar1.xyz";
+	const std::string in_files_name    = "lidar1.xyz";
 	//const std::string in_files_name    = "lidar2.xyz";
 
 	static const int num_of_cams = 6;

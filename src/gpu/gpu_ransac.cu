@@ -146,7 +146,7 @@ int get_points_close_to_plane(
     //************
     const int num_of_threads = 512;
     const int num_of_points = points.size();
-    const int max_num_of_planes = 20;
+    const int max_num_of_planes = 5;
     std::vector<int> gpu_results;
 
     Point3D *gpu_points;
@@ -176,6 +176,8 @@ int get_points_close_to_plane(
     plane_points.reserve(40);
     gpu_results.resize(40);
 
+    std::cout << "\nNext Frame \n\n\n";
+
     for(int i = 0; i < max_num_of_planes; ++i)
     {
         gpu_count_close_points<<<iter_num / num_of_threads, num_of_threads>>>(
@@ -191,7 +193,7 @@ int get_points_close_to_plane(
                    cudaMemcpyDeviceToHost);
 
         std::vector<int>::iterator it = std::max_element(gpu_results.begin(), gpu_results.end());
-        std::cout << "max num: " << *it << "\n";
+        //std::cout << "max num: " << *it << "\n";
         if(*it < threshhold)
             break; //Not a big enough plane, we stop
 
@@ -203,6 +205,12 @@ int get_points_close_to_plane(
             plane_points[i]);
 
         int num_of_close_points = plane_points[i].size();
+
+        std::cout << "\nPlane points: " << num_of_close_points << " \n"; 
+        for(int j = 0; j < num_of_close_points; ++j)
+        {
+            std::cout << plane_points[i][j] << " ";
+        }
 
         cudaMemcpy(gpu_indices, plane_points[i].data(), 
                    num_of_close_points * sizeof(int), 

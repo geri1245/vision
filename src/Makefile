@@ -1,4 +1,7 @@
 cc = g++
+gpucc = nvcc
+gpuflags = -ccbin=clang++-3.8 -rdc=true -Xcompiler -fPIC -arch=sm_35
+gpulibs = -lcudart -lcudadevrt
 libs = -lSDL2 -lSDL2main -lopencv_core -lopencv_highgui -lGL -lGLU -lglut -lGLEW -lstdc++fs
 cflags = -Wall -Wextra -std=c++17 -O2
 
@@ -7,17 +10,21 @@ BUILDDIR  = ../build
 
 cpps = $(shell find -not -path "./test/*" -name '*.cpp')
 hpps = display/program.hpp
+cus = $(shell find -not -path "./test/*" -name '*.cu')
 objects := $(cpps:%.cpp=%.o)
-
-
+cuobjects := $(cus:%.cu=%.o)
 
 
 .PHONY : all
-all : $(objects) $(hpps)
-	$(cc) $(objects) $(hpps) -o main $(libs) $(cflags)
+all : $(objects) $(hpps) $(cuobjects)
+	$(gpucc) -dlink -o link.o $(cuobjects) $(gpuflags) $(gpulibs)
+	$(cc) $(objects) $(cuobjects) $(hpps) link.o -o main $(libs) $(gpulibs) $(cflags)
 
 $(objects) : %.o : %.cpp
 	$(cc) -c $< -o $@ $(libs) $(cflags)
+
+$(cuobjects) : %.o : %.cu
+	$(gpucc) -c $< -o $@ $(gpuflags) $(gpulibs)
 
 .PHONY : test
 test :
