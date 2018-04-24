@@ -20,7 +20,6 @@ public:
     
     std::vector<Point3D> get_points();
     void set_filename(const std::string &filename_);
-    void set_texture_name(const std::string &texture_name_);
 
 private:
 

@@ -72,10 +72,6 @@ std::vector<Point3D> DirInputReader::next()
         files[current] + "/" + filename );
         //files[current] + "/frame_" + files[current].substr(9, 4) + filename ); // Experimental for data2
     
-    ir.set_texture_name(
-        files[current] + "/cam"
-    );
-    
     return ir.get_points();
 }
 

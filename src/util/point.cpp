@@ -52,5 +52,8 @@ std::ostream& operator<<(std::ostream &os, const Point3D &point)
 std::istream& operator>>(std::istream &in, Point3D &point)
 {
     in >> point.x >> point.z >> point.y;
+    while(point.x == 0 && point.y == 0 && point.z == 0)
+        in >> point.x >> point.z >> point.y;
+
     return in;
 }

@@ -22,6 +22,7 @@ struct SelectCamera
         double z = norm_p.z;
         int cam = 0;
         
+        
         if(x > 0)
         {
             if(x > cosa)
@@ -44,6 +45,11 @@ struct SelectCamera
 
         return cam;
     }
+
+private:
+
+    Point3D normalize(const Point3D &p);
+
     float cosa = cos(0.25 * M_PI); //cos(45)
 };
 
@@ -57,6 +63,8 @@ public:
         const std::string &cam_calibration_file_path_
         );
     explicit Colorer(int num_of_cams = 6);
+
+    void find_colors();
         
 private:
     void read_images();
@@ -79,7 +87,7 @@ private:
 
     std::vector<cv::Mat> camera_images;
     std::vector<Point3D> points;
-    std::vector<glm::vec3> colors;
+    std::vector<cv::Vec3b> colors;
 };
 
 #endif

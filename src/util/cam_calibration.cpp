@@ -60,17 +60,28 @@ glm::vec2 ImageCalibration::get_pixel_coords(const Point3D &p, int lidar_id)
         id = 1 - lidar_id;
     }
 
-    tmp = mat_vecs[id].mult_add(to_vec3(p));
+    /*std::cout << "\n" << p;
+    */
+    Point3D p2 = p;
+    p2.z *= -1;
+    /*float sq = sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+    p2.x /= sq;
+    p2.y /= sq;
+    p2.z /= sq;*/
+
+    tmp = mat_vecs[id].mult_add(to_vec3(p2));
     tmp[0] /= tmp[2];
     tmp[1] /= tmp[2];
 
-    float r_sq = tmp[0] * tmp[0] + tmp[1] * tmp[1];
+    //std::cout << tmp[0] << " " << tmp[1] << "\n";
+
+    double r_sq = tmp[0] * tmp[0] + tmp[1] * tmp[1];
 
     tmp[0] = tmp[0] * (1 + discoeff[0] * r_sq + discoeff[1] * r_sq * r_sq);
     tmp[1] = tmp[1] * (1 + discoeff[0] * r_sq + discoeff[1] * r_sq * r_sq);
 
-    u = cam_mat[0][0] * tmp[0] + cam_mat[0][2];
-    v = cam_mat[1][1] * tmp[1] + cam_mat[1][2];
+    u = cam_mat[0][0] * tmp[0] + cam_mat[2][0];
+    v = cam_mat[1][1] * tmp[1] + cam_mat[2][1];
 
     return glm::vec2{u, v};
 }

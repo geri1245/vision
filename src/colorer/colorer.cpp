@@ -1,12 +1,10 @@
 #include "colorer.h"
+#include <opencv2/opencv.hpp>
 
-namespace
-{
-
-Point3D normalize(const Point3D &p)
+Point3D SelectCamera::normalize(const Point3D &p)
 {
     //We don't care about y coordinate
-    double square_sum_root = sqrt(p.x * p.x + p.z * p.z);
+    float square_sum_root = sqrt(p.x * p.x + p.z * p.z);
 
     return {
         p.x / square_sum_root,
@@ -14,22 +12,33 @@ Point3D normalize(const Point3D &p)
         p.z / square_sum_root};
 }
 
-
-std::ostream& operator<<(std::ofstream &out, const std::vector<glm::vec3> &colors)
+std::ostream& operator<<(std::ofstream &out, const std::vector<cv::Vec3b> &colors)
 {
     for(const auto &color : colors)
     {
-        out <<  color.x << " "  <<
-                color.y << " "  <<
-                color.z << "\n";
+        //Opencv uses BGR order, converting it to RGB
+        out <<  (int) color[2] << " "  <<
+                (int) color[1] << " "  <<
+                (int) color[0] << "\n";
     }
+
+    return out;
 }
 
+int clamp(int input, int min, int max)
+{
+    int ret_val = input;
+    if(ret_val < min)
+        ret_val = min;
+    else if(ret_val > max)
+        ret_val = max;
+
+    return ret_val;
 }
 
 Colorer::Colorer(int num_of_cams) : 
-    cam_calibration(num_of_cams),
-    num_of_cams(num_of_cams)
+    num_of_cams(num_of_cams),
+    cam_calibration(num_of_cams)
 {
     camera_images.resize(6);
 }
@@ -71,18 +80,57 @@ void Colorer::set_path(
     out_filename = out_filename_;
     cam_calibration_file_path = cam_calibration_file_path_;
 
-    std::ifstream in{cam_calibration_file_path};
+    in.open(cam_calibration_file_path);
 	in >> cam_calibration;
 }
 
 void Colorer::print_colors()
 {
     out.open(input_reader.get_current_file() + "/" + out_filename);
+    std::cout << input_reader.get_current_file() + "/" + out_filename << "\n";
     out << colors;
     out.close();
 }
 
+void Colorer::find_colors()
+{
+    read_images();
+    int cam_num;
+    for(int i = 0; i < 1; ++i)
+    {
+        next_frame();
+
+        colors.clear();
+        colors.resize( points.size() );
+        std::cout << points.size() << "\n";
+
+        for(const auto &p : points)
+        {
+            cam_num = camera_selector(p);
+            glm::vec2 coords = cam_calibration.image_calibrations[cam_num].get_pixel_coords(p, 0);
+            std::cout << cam_num << " " << coords.x << " " << coords.y << "\n";
+            colors.push_back( camera_images[cam_num].at<cv::Vec3b>(clamp(coords.x, 0, 1287), clamp(coords.y, 0, 963)) );
+        }
+        /*for(const auto &col : colors)
+        {
+            std::cout << (int) col[2] << " "  <<
+                (int) col[1] << " "  <<
+                (int) col[0] << "\n";
+        }*/
+        print_colors();
+    }
+}
+
 int main()
 {
-    
+    Colorer colorer;
+    colorer.set_path(
+        "../../data1",
+        "lidar1.xyz",
+        "lidar1.col",
+        "../../data1/calibration.txt"
+    );
+    colorer.find_colors();
+
+    return 0;
 }
