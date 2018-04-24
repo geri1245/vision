@@ -38,7 +38,7 @@ void Displayer::set_ogl()
 
 	glEnable(GL_BLEND);	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 }
 
 void Displayer::init_cube()
@@ -79,6 +79,25 @@ void Displayer::init_cube()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+void Displayer::init_rectangle()
+{
+	std::vector<Vertex> rectangle_vertices;
+	rectangle_vertices.reserve(4);
+	
+	rectangle_vertices.push_back( Vertex{ glm::vec3(-0.5f, -0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 0.5f, -0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 0.5f,  0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(-0.5f,  0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+
+	program.generate_vao_vbo<Vertex>(
+		rectangle_vaoID, 
+		rectangle_vboID, 
+		4 * sizeof(Vertex), 
+		rectangle_vertices.data(), GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
+}
+
 void Displayer::next_frame()
 {
 	frame_points = input_reader.next();
@@ -111,6 +130,7 @@ bool Displayer::init()
 {
 	set_ogl();
 	init_cube();
+	init_rectangle();
 
 	input_reader.set_path(in_files_path, in_files_name);
 
@@ -156,7 +176,7 @@ void Displayer::update()
 
 void Displayer::draw_cube(const glm::mat4 &world_transform)
 {
-	alpha = 0.2f;
+	alpha = 0.1f;
 	glUniform1f(alpha_loc, alpha);
 
 	glUseProgram( program.program_id() );
@@ -165,6 +185,20 @@ void Displayer::draw_cube(const glm::mat4 &world_transform)
 
 	glBindVertexArray(cube_vaoID);
 	glDrawElements(GL_TRIANGLES, 6 * 6, GL_UNSIGNED_SHORT, 0);
+	glBindVertexArray(0);
+}
+
+void Displayer::draw_rectangle(const glm::mat4 &world_transform)
+{
+	alpha = 0.7f;
+	glUniform1f(alpha_loc, alpha);
+
+	glUseProgram( program.program_id() );
+	MVP = camera.GetViewProj() * world_transform;
+	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
+
+	glBindVertexArray(rectangle_vaoID);
+	glDrawArrays(GL_QUADS, 0, 4);
 	glBindVertexArray(0);
 }
 
@@ -177,8 +211,10 @@ void Displayer::render()
 	glUniform1f(alpha_loc, alpha);
 	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
 
+
 	float t = SDL_GetTicks() / 1000.0f;
 	draw_cube(glm::translate(glm::vec3(0.5 + 0.7 * cos(t), 0, -0.4 + 0.7 * sin(t))));
+	draw_rectangle(glm::mat4(1.0f));
 }
 
 //Event handling:

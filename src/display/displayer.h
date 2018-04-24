@@ -59,7 +59,9 @@ private:
 	void resize_window(int width, int height);
 
 	void init_cube();
+	void init_rectangle();
 	void draw_cube(const glm::mat4 &world_transform);
+	void draw_rectangle(const glm::mat4 &world_transform);
 
 	int num_points, points_to_draw;
 	float alpha;
@@ -71,6 +73,7 @@ private:
 
 	GLuint vaoID, vboID;
 	GLuint cube_vaoID, cube_vboID, cube_indexBufferID;
+	GLuint rectangle_vaoID, rectangle_vboID;
 
 	GLuint MVP_loc, alpha_loc;
 	glm::mat4 MVP;
