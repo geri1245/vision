@@ -24,14 +24,13 @@ __device__ int gpu_rand_int(int seed, int max)
     return curand(&state) % max;
 }
 
-__global__ void gpu_get_close_points_indices(
-    int index1, 
+__device__ int gpu_get_close_points_indices(
+    int index1,
     int index2, 
     const Point3D *points,
     int num_of_points,
     float epsilon,
     int *close_points_indices,
-    int *num_of_close_points,
     const bool *valid_points)
 {
     const Point3D p1 = points[ index1 ];
@@ -45,7 +44,7 @@ __global__ void gpu_get_close_points_indices(
         coeffs[1] * coeffs[1] + 
         coeffs[2] * coeffs[2]);
     
-    int local_close_points = 0;
+    int num_of_close_points = 0;
 
     for(int i = 0; i < num_of_points; ++i)
     {
@@ -55,16 +54,18 @@ __global__ void gpu_get_close_points_indices(
             (tmp.z > 0.3 || tmp.z < -1.1) &&
             gpu_distance_from_plane(tmp, coeffs, tmp_sqrt) < epsilon)
         {
-            close_points_indices[local_close_points] = i;
-            ++local_close_points;
+            //if(num_of_close_points < 150)
+            //close_points_indices[num_of_close_points] = 3;
+            
+            ++num_of_close_points;
         }
     }
-    *num_of_close_points = local_close_points;
-    //return num_of_close_points;
+    
+    return num_of_close_points;
 }
 
 __device__ int gpu_count_points_close_to_plane(
-    int index1, 
+    int index1,
     int index2, 
     const Point3D *points,
     int num_of_points,
@@ -120,7 +121,8 @@ __global__ void gpu_count_close_points(
     const bool *valid_points,
     int num_of_points,
     float epsilon,
-    int *num_of_close_points)
+    int *num_of_close_points,
+    int **close_points_indices)
 {
     int ind = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -130,7 +132,28 @@ __global__ void gpu_count_close_points(
                                    points,
                                    num_of_points,
                                    epsilon,
-                                   valid_points);    
+                                   valid_points);
+} 
+
+__global__ void gpu_count_close_points2(
+    const Point3D *points,
+    const int *randoms,
+    const bool *valid_points,
+    int num_of_points,
+    float epsilon,
+    int *num_of_close_points,
+    int **close_points_indices)
+{
+    int ind = threadIdx.x + blockIdx.x * blockDim.x;
+
+    num_of_close_points[ind] = gpu_get_close_points_indices(
+                                   randoms[2 * ind],
+                                   randoms[2 * ind + 1],
+                                   points,
+                                   num_of_points,
+                                   epsilon,
+                                   close_points_indices[ind],
+                                   valid_points);
 } 
 
 int get_points_close_to_plane(
@@ -148,12 +171,19 @@ int get_points_close_to_plane(
     const int num_of_points = points.size();
     const int max_num_of_planes = 5;
     std::vector<int> gpu_results;
+    std::vector<int*> gpu_close_points_indices;
+    gpu_close_points_indices.resize(iter_num);
 
     Point3D *gpu_points;
     int *gpu_randoms;
     int *gpu_num_of_close_points;
     int *gpu_indices;
     bool *gpu_valid_points;
+
+    for(int i = 0; i < iter_num; ++i)
+    {
+        cudaMalloc((void**) &(gpu_close_points_indices[i]), 150 * sizeof(int));
+    }
 
     cudaMalloc((void **) &gpu_points, num_of_points * sizeof(Point3D));
     cudaMalloc((void **) &gpu_randoms, randoms.size() * sizeof(int));
@@ -176,13 +206,13 @@ int get_points_close_to_plane(
     plane_points.reserve(40);
     gpu_results.resize(40);
 
-    std::cout << "\nNext Frame \n\n\n";
+    std::cout << "\nNext Frame \n\n";
 
     for(int i = 0; i < max_num_of_planes; ++i)
     {
         gpu_count_close_points<<<iter_num / num_of_threads, num_of_threads>>>(
             gpu_points, gpu_randoms, gpu_valid_points, 
-            num_of_points, epsilon, gpu_num_of_close_points);
+            num_of_points, epsilon, gpu_num_of_close_points, gpu_close_points_indices.data());
     
         cudaDeviceSynchronize();
 
@@ -193,18 +223,32 @@ int get_points_close_to_plane(
                    cudaMemcpyDeviceToHost);
 
         std::vector<int>::iterator it = std::max_element(gpu_results.begin(), gpu_results.end());
-        //std::cout << "max num: " << *it << "\n";
         if(*it < threshhold)
             break; //Not a big enough plane, we stop
 
         std::vector<int> tmp;
         plane_points.push_back(tmp); //Can't use move yet
+        plane_points[i].resize(*it);
+        cudaMemcpy(
+            plane_points[i].data(), 
+            gpu_close_points_indices[std::distance(gpu_results.begin(), it)],
+            *it * sizeof(int),
+            cudaMemcpyDeviceToHost);
+
+        int num_of_close_points = plane_points[i].size();
+        
+        std::cout << "\nGPU Plane points: " << num_of_close_points << " \n"; 
+        for(int j = 0; j < num_of_close_points; ++j)
+        {
+            std::cout << plane_points[i][j] << " ";
+        }
+
         get_close_points_indices(
             std::distance(gpu_results.begin(), it), points,
             randoms, epsilon,
             plane_points[i]);
 
-        int num_of_close_points = plane_points[i].size();
+        num_of_close_points = plane_points[i].size();
 
         std::cout << "\nPlane points: " << num_of_close_points << " \n"; 
         for(int j = 0; j < num_of_close_points; ++j)
@@ -228,6 +272,10 @@ int get_points_close_to_plane(
     cudaFree(gpu_randoms);
     cudaFree(gpu_valid_points);
     cudaFree(gpu_num_of_close_points);
+    for(int i = 0; i < iter_num; ++i)
+    {
+        cudaFree(gpu_close_points_indices[i]);
+    }
 
     return 0;
 }
