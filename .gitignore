@@ -3,4 +3,5 @@ build/*
 */*.o
 src/*/*.out
 main
+src/colorer/colorer
 data*

@@ -82,8 +82,7 @@ void Displayer::init_cube()
 void Displayer::next_frame()
 {
 	frame_points = input_reader.next();
-	
-	std::vector < std::vector<int> > planes = find_plane(frame_points, 10000, 0.002, 85);
+	std::vector < std::vector<int> > planes = find_plane(frame_points, 1000, 0.002, 60);
 
 	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
 	

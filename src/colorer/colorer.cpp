@@ -96,27 +96,21 @@ void Colorer::find_colors()
 {
     read_images();
     int cam_num;
-    for(int i = 0; i < 1; ++i)
+    while(next_frame())
     {
-        next_frame();
-
         colors.clear();
-        colors.resize( points.size() );
-        std::cout << points.size() << "\n";
-
+        colors.reserve( points.size() );
         for(const auto &p : points)
         {
+            if(p.x == 0 && p.y == 0 && p.z == 0)
+                continue;
+
             cam_num = camera_selector(p);
             glm::vec2 coords = cam_calibration.image_calibrations[cam_num].get_pixel_coords(p, 0);
             std::cout << cam_num << " " << coords.x << " " << coords.y << "\n";
-            colors.push_back( camera_images[cam_num].at<cv::Vec3b>(clamp(coords.x, 0, 1287), clamp(coords.y, 0, 963)) );
+            cv::Vec3b col = camera_images[cam_num].at<cv::Vec3b>(clamp(coords.y, 0, 963), clamp(coords.x, 0, 1287));
+            colors.push_back(col);
         }
-        /*for(const auto &col : colors)
-        {
-            std::cout << (int) col[2] << " "  <<
-                (int) col[1] << " "  <<
-                (int) col[0] << "\n";
-        }*/
         print_colors();
     }
 }
