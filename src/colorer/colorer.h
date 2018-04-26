@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 
 #include "../util/input.h"
-#include "../util/cam_calibration.h"
+#include "cam_calibration.h"
 
 struct SelectCamera
 {
@@ -50,7 +50,7 @@ private:
 
     Point3D normalize(const Point3D &p);
 
-    float cosa = cos(0.25 * M_PI); //cos(45)
+    float cosa = cos(M_PI * 5 / 18.0f); //cos(45)
 };
 
 class Colorer
@@ -60,7 +60,7 @@ public:
         const std::string &path_,
         const std::string &in_filename_,
         const std::string &out_filename_,
-        const std::string &cam_calibration_file_path_
+        const std::string &cam_calibration_file_name_
         );
     explicit Colorer(int num_of_cams = 6);
 
@@ -68,15 +68,16 @@ public:
         
 private:
     void read_images();
-    bool next_frame();
+    void next_frame();
     void print_colors();
 
     int num_of_cams;
+    bool keep_going = true;
 
     std::string path;
     std::string in_filename;
     std::string out_filename;
-    std::string cam_calibration_file_path;
+    std::string cam_calibration_file_name;
 
     std::ofstream out;
     std::ifstream in;

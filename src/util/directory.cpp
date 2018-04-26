@@ -37,6 +37,7 @@ std::vector<std::string> files_in_directory(
     
     for( fs::directory_iterator it{ path } ; it != end ; ++it )
     {
+        if(std::experimental::filesystem::is_directory(*it))
             filenames.push_back( it->path().string() ) ;
     }
 

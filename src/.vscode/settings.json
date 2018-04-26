@@ -43,6 +43,7 @@
         "*.cuh": "cpp",
         "cstdarg": "cpp",
         "functional": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "valarray": "cpp"
     }
 }

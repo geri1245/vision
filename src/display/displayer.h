@@ -11,9 +11,9 @@
 
 #include "../util/point.h"
 #include "../util/input.h"
-#include "../util/cam_calibration.h"
 #include "gCamera.h"
 #include "program.hpp"
+#include "color.h"
 
 class Displayer
 {
@@ -42,7 +42,8 @@ private:
 	
 	//const std::string in_files_name    = "fusioned_no_color.xyz";
 	//const std::string in_files_name    = ".xyz";
-	const std::string in_files_name    = "lidar1.xyz";
+	const std::string in_files_name       = "lidar1.xyz";
+	const std::string in_color_file_name  = "lidar1.col";
 	//const std::string in_files_name    = "lidar2.xyz";
 
 	static const int num_of_cams = 6;
@@ -63,6 +64,8 @@ private:
 	void draw_cube(const glm::mat4 &world_transform);
 	void draw_rectangle(const glm::mat4 &world_transform);
 
+	void read_colors();
+
 	int num_points, points_to_draw;
 	float alpha;
 	bool is_over, is_paused;
@@ -70,6 +73,7 @@ private:
 
 	std::vector<Point3D> frame_points;
 	std::vector<Vertex>  frame_vertices;
+	std::vector<Color>   colors;
 
 	GLuint vaoID, vboID;
 	GLuint cube_vaoID, cube_vboID, cube_indexBufferID;

@@ -100,29 +100,54 @@ void Displayer::init_rectangle()
 
 void Displayer::next_frame()
 {
-	frame_points = input_reader.next();
-	std::vector < std::vector<int> > planes = find_plane(frame_points, 1000, 0.002, 60);
-
-	//std::sort(frame_points.begin(), frame_points.end(), ComparePointByXAndZ());
-	
+	frame_points = input_reader.next(); //Read points
 	num_points = frame_points.size();
+
+	read_colors();
+	std::cout << "points: " << num_points << "  colors: " << colors.size() << "\n";
+	for(int i = 0; i < 10; ++i)
+	{
+		std::cout << colors[i] << " ";
+	}
 
 	if(num_points != 0) //We only change the displayed points if the frame is not empty
 	{
+		//Detecting planes
+		/*std::vector < std::vector<int> > planes = find_plane(frame_points, 1000, 0.002, 60);
+		for(const auto &v : planes)
+		{
+			for(int n : v)
+			{
+			frame_vertices[n].col = {1.0, 0, 0};
+			}
+		}*/
+		
 		frame_vertices.clear();
 
-		for( const auto& p : frame_points )
+		for( int i = 0; i < num_points; ++i )
 		{
-			frame_vertices.push_back( Vertex{ glm::vec3{p.x, p.y, p.z}, {1.0, 1.0, 1.0} } );
+			const Point3D &p = frame_points[i];
+			const Color &c   = colors[i];
+			frame_vertices.push_back(
+				Vertex{ 
+					{p.x, p.y, p.z}, 
+					{c.r / 255.f, c.g / 255.f, c.b / 255.f} 
+				}
+			);
 		}
 	}
+}
 
-	for(const auto &v : planes)
+void Displayer::read_colors()
+{
+	std::ifstream in{ input_reader.get_current_file() + "/" + in_color_file_name };
+	colors.resize(num_points);
+	colors.clear();
+	for(int i = 0; i < num_points; ++i)
 	{
-		for(int n : v)
-		{
-		frame_vertices[n].col = {1.0, 0, 0};
-		}
+		Color col;
+		in >> col;
+		colors.push_back(col);
 	}
 }
 
@@ -165,11 +190,10 @@ void Displayer::update()
 
 	if ( !is_paused && !is_over )
 	{
-		next_frame();
 		points_to_draw = num_points == 0 ? frame_vertices.size() : num_points;
-
 		program.update_vbo<Vertex>(vboID, points_to_draw * sizeof(Vertex), frame_vertices.data());
 
+		next_frame();
 		is_over = !input_reader.step();
 	}
 }

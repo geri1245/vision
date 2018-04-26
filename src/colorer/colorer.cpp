@@ -57,73 +57,91 @@ void Colorer::read_images()
     }
 }
 
-bool Colorer::next_frame()
+void Colorer::next_frame()
 {
-    bool keep_going = input_reader.step();
     if(keep_going)
     {
         points = input_reader.next();
     }
-
-    return keep_going;
 }
 
 void Colorer::set_path(
     const std::string &path_,
     const std::string &in_filename_,
     const std::string &out_filename_,
-    const std::string &cam_calibration_file_path_)
+    const std::string &cam_calibration_file_name_)
 {
     input_reader.set_path(path_, in_filename_);
     path = path_;
     in_filename  = in_filename_;
     out_filename = out_filename_;
-    cam_calibration_file_path = cam_calibration_file_path_;
+    cam_calibration_file_name = cam_calibration_file_name_;
 
-    in.open(cam_calibration_file_path);
+    in.open(path + "/" + cam_calibration_file_name);
 	in >> cam_calibration;
 }
 
 void Colorer::print_colors()
 {
     out.open(input_reader.get_current_file() + "/" + out_filename);
-    std::cout << input_reader.get_current_file() + "/" + out_filename << "\n";
+    std::cout << input_reader.get_current_file() << "\n";
     out << colors;
     out.close();
 }
 
 void Colorer::find_colors()
 {
-    read_images();
     int cam_num;
-    while(next_frame())
+    while(keep_going)
     {
+        read_images();
+        next_frame();
         colors.clear();
         colors.reserve( points.size() );
         for(const auto &p : points)
         {
             if(p.x == 0 && p.y == 0 && p.z == 0)
+            {
+                colors.push_back( {0, 0, 0} );
                 continue;
+            }
 
             cam_num = camera_selector(p);
             glm::vec2 coords = cam_calibration.image_calibrations[cam_num].get_pixel_coords(p, 0);
-            std::cout << cam_num << " " << coords.x << " " << coords.y << "\n";
-            cv::Vec3b col = camera_images[cam_num].at<cv::Vec3b>(clamp(coords.y, 0, 963), clamp(coords.x, 0, 1287));
-            colors.push_back(col);
+            if(coords.x < 0 || coords.x > 1287 || coords.y < 0 || coords.y > 963)
+            {
+                colors.push_back( {0, 0, 0} );
+            }
+            else
+            {
+                cv::Vec3b col = camera_images[cam_num].at<cv::Vec3b>(clamp(coords.y, 0, 963), clamp(coords.x, 0, 1287));
+                colors.push_back(col);
+            }
         }
         print_colors();
+        keep_going = input_reader.step();
     }
 }
 
 int main()
 {
     Colorer colorer;
+    std::string directory_path, calibration_name; 
+    std::string in_file_name, out_file_name;
+    std::ifstream in{ "conf.txt" };
+    in >> 
+        directory_path >> 
+        calibration_name >>
+        in_file_name >>
+        out_file_name;
+
     colorer.set_path(
-        "../../data1",
-        "lidar1.xyz",
-        "lidar1.col",
-        "../../data1/calibration.txt"
+        directory_path,
+        in_file_name,
+        out_file_name,
+        calibration_name
     );
+
     colorer.find_colors();
 
     return 0;
