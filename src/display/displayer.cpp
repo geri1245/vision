@@ -49,11 +49,46 @@ namespace
 			}
 		}
 	}
+	
+	void max_x_y_diff(
+		const std::vector<Point3D> &plane_points, 
+		Point3D &min, Point3D &max)
+	{	
+		min = plane_points[0];
+		max = plane_points[0];
+
+		for(const auto &p : plane_points)
+		{
+			if(p.y < min.y)
+				min.y = p.y;
+			if(p.y > max.y)
+				max.y = p.y;
+			if(p.x < min.x)
+			{			
+				min.x = p.x;
+				min.z = p.z;
+			}			
+			if(p.x > max.x)
+			{
+				max.x = p.x;
+				max.z = p.z;
+			}
+		}
+	}
 
 	glm::mat4 find_rotation(const std::vector<Point3D> &plane_points)
 	{
 		Point3D min, max;
 		max_z_y_diff(plane_points, min, max);
+		bool is_z_too_small = false;
+		
+		//If the z coords are too close, we take the x coordinates
+		if(max.z - min.z < 1)
+		{
+			max_x_y_diff(plane_points, min, max);
+			is_z_too_small = true;
+		}
+
 		float y_diff = max.y - min.y;
 		Point3D diff{ max - min };
 		Point3D norm_diff{ normalize_xz(diff) };
@@ -66,12 +101,16 @@ namespace
 		if(norm_diff.z < 0)
 			rotation *= -1;
 
-		rotation -= M_PI / 30.0f;
+		//rotation -= M_PI / 30.0f;
+		float scale = is_z_too_small ? abs(diff.x) : abs(diff.z);
+		std::cout << scale << "\n";
+		float x_trans = is_z_too_small ? max.x : min.x;
+		float z_trans = is_z_too_small ? -max.z : -min.z;
 		
 		return 
-			glm::translate(glm::vec3(max.x, min.y, -max.z)) *
+			glm::translate(glm::vec3(x_trans, min.y, z_trans)) *
 			glm::rotate<float>(rotation, glm::vec3(0, 1, 0)) *
-			glm::scale(glm::vec3(5 * diff.x > 7 ? 7 : 5 * diff.x, y_diff / 2.0f, 1));
+			glm::scale(glm::vec3(scale > 7 ? 7 : scale, y_diff / 2.0f, 1));
 	}
 }
 
