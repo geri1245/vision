@@ -27,6 +27,25 @@ struct ComparePointByXAndZ
 	}
 };
 
+struct ComparePointByZAndX
+{
+	bool operator()(const Point3D &lhs, const Point3D &rhs)
+	{
+		if( lhs.z < rhs.z )
+		{
+			return true;
+		}
+		else if ( lhs.z > rhs.z )
+		{
+			return false;
+		}
+		else
+		{
+			return lhs.x < rhs.x;
+		}
+	}
+};
+
 struct Vertex
 {
 	glm::vec3 pos;
