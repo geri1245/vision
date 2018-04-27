@@ -35,20 +35,12 @@ private:
 	const std::string vert_shader_path = "display/shaders/myVert.vert";
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
 	
-	const std::string in_files_path    = "../data1";
-	const std::string cam_calibration_file_path    = "../data1/calibration.txt";
-	const std::string texture_path    = "../data1/calibration.txt";
-	//const std::string in_files_path    = "../data2";
-	
-	//const std::string in_files_name    = "fusioned_no_color.xyz";
-	//const std::string in_files_name    = ".xyz";
-	const std::string in_files_name       = "lidar1.xyz";
-	const std::string in_color_file_name  = "lidar1.col";
-	//const std::string in_files_name    = "lidar2.xyz";
+	std::string in_files_path;
+	std::string in_files_name;
+	std::string in_color_file_name;
+	int num_of_cams = 6;
 
-	static const int num_of_cams = 6;
-
-	const GLfloat point_size = 7.0f;
+	const GLfloat point_size = 12.0f;
 
 	void set_ogl();
 	void next_frame();
@@ -59,6 +51,7 @@ private:
 	void mouse_move(SDL_MouseMotionEvent& ev);
 	void resize_window(int width, int height);
 
+	void read_conf_file();
 	void init_cube();
 	void init_rectangle();
 	void draw_cube(const glm::mat4 &world_transform);

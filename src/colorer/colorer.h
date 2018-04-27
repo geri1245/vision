@@ -26,21 +26,21 @@ struct SelectCamera
         if(x > 0)
         {
             if(x > cosa)
-                cam = 2;
+                cam = 0;
             else if(z > 0)
-                cam = 4;
+                cam = 5;
             else
-                cam = 1;
+                cam = 3;
         }
 
         else if(x <= 0)
         {
             if(x < -cosa)
-                cam = 0;
+                cam = 2;
             else if(z > 0)
-                cam = 5;
+                cam = 4;
             else 
-                cam = 3;
+                cam = 1;
         }
 
         return cam;

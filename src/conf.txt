@@ -1,0 +1,4 @@
+../data1
+lidar2.xyz
+lidar2.col
+6

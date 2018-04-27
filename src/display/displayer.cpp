@@ -84,10 +84,10 @@ void Displayer::init_rectangle()
 	std::vector<Vertex> rectangle_vertices;
 	rectangle_vertices.reserve(4);
 	
-	rectangle_vertices.push_back( Vertex{ glm::vec3(-0.5f, -0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3( 0.5f, -0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3( 0.5f,  0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3(-0.5f,  0.5f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,     0, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,     0, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,  1.0f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,  1.0f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
 
 	program.generate_vao_vbo<Vertex>(
 		rectangle_vaoID, 
@@ -130,7 +130,7 @@ void Displayer::next_frame()
 			const Color &c   = colors[i];
 			frame_vertices.push_back(
 				Vertex{ 
-					{p.x, p.y, p.z}, 
+					{-p.x, p.y, p.z}, 
 					{c.r / 255.f, c.g / 255.f, c.b / 255.f} 
 				}
 			);
@@ -151,8 +151,22 @@ void Displayer::read_colors()
 	}
 }
 
+void Displayer::read_conf_file()
+{
+	std::ifstream in{ "conf.txt" };
+	in >> in_files_path 	 >>
+		  in_files_name 	 >>
+		  in_color_file_name >>
+		  num_of_cams;
+
+	assert(in_files_path != "");
+	assert(in_files_name != "");
+	assert(in_color_file_name != "");
+}
+
 bool Displayer::init()
 {
+	read_conf_file();
 	set_ogl();
 	init_cube();
 	init_rectangle();
@@ -236,8 +250,7 @@ void Displayer::render()
 	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
 
 
-	float t = SDL_GetTicks() / 1000.0f;
-	draw_cube(glm::translate(glm::vec3(0.5 + 0.7 * cos(t), 0, -0.4 + 0.7 * sin(t))));
+	//draw_cube(glm::translate(glm::vec3(0.5, 0, -0.4)));
 	draw_rectangle(glm::mat4(1.0f));
 }
 
