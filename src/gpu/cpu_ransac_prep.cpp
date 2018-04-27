@@ -25,14 +25,14 @@ namespace
 }
 
 
-std::vector< std::vector<int> > find_plane(
+std::vector< std::vector<Point3D> > find_plane(
     const std::vector<Point3D> &points, 
     int iter_num, float epsilon, int threshhold)
 {
     std::vector<int> randoms = get_random_numbers(2 * iter_num, 0, points.size() - 1);
     
-    std::vector<std::vector<int> > plane_points;
-    plane_points.reserve(10);
+    std::vector<std::vector<int> > plane_points_indices;
+    plane_points_indices.reserve(10);
 
     get_points_close_to_plane(
             iter_num,
@@ -40,8 +40,22 @@ std::vector< std::vector<int> > find_plane(
             randoms,
             epsilon,
             threshhold,
-            plane_points
+            plane_points_indices
         );
+
+    std::vector< std::vector<Point3D> > plane_points;
+    plane_points.resize(plane_points_indices.size());
+    for(const auto &v : plane_points_indices)
+    {
+        std::vector<Point3D> tmp_points;
+        tmp_points.clear();
+        tmp_points.reserve(v.size());
+        for(int ind : v)
+        {
+            tmp_points.push_back(points[ind]);
+        }
+        plane_points.push_back(std::move(tmp_points));
+    }
 
     return std::move(plane_points);
 }

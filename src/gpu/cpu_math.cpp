@@ -71,7 +71,7 @@ int get_close_points_indices(
         coeffs[2] * coeffs[2]);
     
     close_points_indices.clear();
-    close_points_indices.reserve(250);
+    close_points_indices.reserve(200);
     int num_of_close_points = 0;
 
     for(unsigned int i = 0; i < points.size(); ++i)

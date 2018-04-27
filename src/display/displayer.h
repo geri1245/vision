@@ -40,7 +40,7 @@ private:
 	std::string in_color_file_name;
 	int num_of_cams = 6;
 
-	const GLfloat point_size = 12.0f;
+	const GLfloat point_size = 8.0f;
 
 	void set_ogl();
 	void next_frame();
@@ -54,8 +54,10 @@ private:
 	void read_conf_file();
 	void init_cube();
 	void init_rectangle();
+
 	void draw_cube(const glm::mat4 &world_transform);
 	void draw_rectangle(const glm::mat4 &world_transform);
+	void draw_points(const glm::mat4 &world_transform);
 
 	void read_colors();
 
@@ -67,6 +69,7 @@ private:
 	std::vector<Point3D> frame_points;
 	std::vector<Vertex>  frame_vertices;
 	std::vector<Color>   colors;
+	std::vector < std::vector<Point3D> > planes;
 
 	GLuint vaoID, vboID;
 	GLuint cube_vaoID, cube_vboID, cube_indexBufferID;

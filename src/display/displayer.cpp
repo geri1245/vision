@@ -13,6 +13,68 @@
 #include "../gpu/cpu_ransac_prep.h"
 
 
+namespace
+{
+	Point3D normalize_xz(const Point3D &p)
+	{
+		float sqr = sqrt(p.x * p.x + p.z * p.z);
+		return {p.x / sqr, 0, p.z / sqr};
+	}
+
+	//Finds the maximal and minimal z values, stores the
+	//x values for these points, and finds the absolute
+	//max and min y coords
+	void max_z_y_diff(
+		const std::vector<Point3D> &plane_points, 
+		Point3D &min, Point3D &max)
+	{	
+		min = plane_points[0];
+		max = plane_points[0];
+
+		for(const auto &p : plane_points)
+		{
+			if(p.y < min.y)
+				min.y = p.y;
+			if(p.y > max.y)
+				max.y = p.y;
+			if(p.z < min.z)
+			{			
+				min.z = p.z;
+				min.x = p.x;
+			}			
+			if(p.z > max.z)
+			{
+				max.z = p.z;
+				max.x = p.x;
+			}
+		}
+	}
+
+	glm::mat4 find_rotation(const std::vector<Point3D> &plane_points)
+	{
+		Point3D min, max;
+		max_z_y_diff(plane_points, min, max);
+		float y_diff = max.y - min.y;
+		Point3D diff{ max - min };
+		Point3D norm_diff{ normalize_xz(diff) };
+		std::cout << "points: " << max << min << norm_diff;
+		
+		//If the z difference is big enough, we can use it, else use x diff
+		//float z_diff = max.z - min.z;
+		//Point3D diff{ z_diff > 0.3 ? z_diff : max.x - min.x };
+		double rotation = acos(norm_diff.x);
+		if(norm_diff.z < 0)
+			rotation *= -1;
+
+		rotation -= M_PI / 30.0f;
+		
+		return 
+			glm::translate(glm::vec3(max.x, min.y, -max.z)) *
+			glm::rotate<float>(rotation, glm::vec3(0, 1, 0)) *
+			glm::scale(glm::vec3(5 * diff.x > 7 ? 7 : 5 * diff.x, y_diff / 2.0f, 1));
+	}
+}
+
 Displayer::Displayer()
 {
 	vaoID     = 0;
@@ -84,10 +146,10 @@ void Displayer::init_rectangle()
 	std::vector<Vertex> rectangle_vertices;
 	rectangle_vertices.reserve(4);
 	
-	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,     0, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,     0, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,  1.0f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,  1.0f, 0), glm::vec3(0.3f, 0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,     0, 0), glm::vec3(0.f, 0.f, 0.2f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,     0, 0), glm::vec3(0.f, 0.f, 0.2f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,  1.0f, 0), glm::vec3(0.f, 0.f, 0.2f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,  1.0f, 0), glm::vec3(0.f, 0.f, 0.2f) } );
 
 	program.generate_vao_vbo<Vertex>(
 		rectangle_vaoID, 
@@ -104,23 +166,11 @@ void Displayer::next_frame()
 	num_points = frame_points.size();
 
 	read_colors();
-	std::cout << "points: " << num_points << "  colors: " << colors.size() << "\n";
-	for(int i = 0; i < 10; ++i)
-	{
-		std::cout << colors[i] << " ";
-	}
 
 	if(num_points != 0) //We only change the displayed points if the frame is not empty
 	{
 		//Detecting planes
-		/*std::vector < std::vector<int> > planes = find_plane(frame_points, 1000, 0.002, 60);
-		for(const auto &v : planes)
-		{
-			for(int n : v)
-			{
-			frame_vertices[n].col = {1.0, 0, 0};
-			}
-		}*/
+		planes = find_plane(frame_points, 5000, 0.002, 60);
 		
 		frame_vertices.clear();
 
@@ -128,9 +178,10 @@ void Displayer::next_frame()
 		{
 			const Point3D &p = frame_points[i];
 			const Color &c   = colors[i];
+			//if(p.y < 0.4 && p.y > -0.55)
 			frame_vertices.push_back(
 				Vertex{ 
-					{-p.x, p.y, p.z}, 
+					{p.x, p.y, -p.z}, 
 					{c.r / 255.f, c.g / 255.f, c.b / 255.f} 
 				}
 			);
@@ -195,12 +246,8 @@ void Displayer::clean()
 void Displayer::update()
 {
 	float delta = ( SDL_GetTicks() - prev_tick ) / 1000.0f;
-
 	camera.Update(delta);
-
 	prev_tick = SDL_GetTicks();
-
-	MVP = camera.GetViewProj();
 
 	if ( !is_paused && !is_over )
 	{
@@ -214,10 +261,11 @@ void Displayer::update()
 
 void Displayer::draw_cube(const glm::mat4 &world_transform)
 {
+	glUseProgram( program.program_id() );
+	
 	alpha = 0.1f;
 	glUniform1f(alpha_loc, alpha);
 
-	glUseProgram( program.program_id() );
 	MVP = camera.GetViewProj() * world_transform;
 	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
 
@@ -228,16 +276,34 @@ void Displayer::draw_cube(const glm::mat4 &world_transform)
 
 void Displayer::draw_rectangle(const glm::mat4 &world_transform)
 {
+	glUseProgram( program.program_id() );
+	
 	alpha = 0.7f;
 	glUniform1f(alpha_loc, alpha);
 
-	glUseProgram( program.program_id() );
 	MVP = camera.GetViewProj() * world_transform;
 	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
 
 	glBindVertexArray(rectangle_vaoID);
 	glDrawArrays(GL_QUADS, 0, 4);
 	glBindVertexArray(0);
+}
+
+void Displayer::draw_points(const glm::mat4 &world_transform)
+{
+	glUseProgram( program.program_id() );
+	
+	alpha = 0.8f;
+	glUniform1f(alpha_loc, alpha);
+
+	MVP = camera.GetViewProj() * world_transform;
+	glUniformMatrix4fv(MVP_loc, 1, GL_FALSE, &(MVP[0][0]));
+
+	glBindVertexArray(vaoID);
+	glDrawArrays(GL_POINTS, 0, points_to_draw);
+
+	glBindVertexArray(0);
+	glUseProgram( 0 );
 }
 
 
@@ -247,11 +313,16 @@ void Displayer::render()
 
 	alpha = 1.0f;
 	glUniform1f(alpha_loc, alpha);
-	program.draw_points(vaoID, MVP_loc, MVP, points_to_draw);
-
+	draw_points(glm::mat4());
 
 	//draw_cube(glm::translate(glm::vec3(0.5, 0, -0.4)));
-	draw_rectangle(glm::mat4(1.0f));
+	for(const auto &plane : planes)
+	{
+		if(plane.size() != 0)
+			draw_rectangle(
+				find_rotation(plane)
+			);
+	}
 }
 
 //Event handling:

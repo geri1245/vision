@@ -31,10 +31,6 @@ public:
 	template <typename T>
 	void update_vbo(GLuint vboID, int size, const T *data);
 
-	void draw_points(
-		GLuint vaoID, GLuint MVP_loc, 
-		const glm::mat4 &MVP, int num_points);
-
 	void clean(GLuint vaoID, GLuint vboID);
 	GLuint program_id();
 
@@ -183,22 +179,6 @@ inline void Program::update_vbo(GLuint vboID, int size, const T *data)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
-}
-
-
-inline void Program::draw_points(GLuint vaoID, GLuint MVP_loc, const glm::mat4 &MVP, int num_points)
-{
-	glUseProgram( programID );
-
-	glUniformMatrix4fv( MVP_loc, 1, GL_FALSE, &(MVP[0][0]) );
-
-	glBindVertexArray(vaoID);
-
-	glDrawArrays(GL_POINTS, 0, num_points);
-
-	glBindVertexArray(0);
-
-	glUseProgram( 0 );
 }
 
 

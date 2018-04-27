@@ -50,7 +50,7 @@ private:
 
     Point3D normalize(const Point3D &p);
 
-    float cosa = cos(M_PI * 5 / 18.0f); //cos(45)
+    float cosa = cos(M_PI * 4.5 / 18.0f); //cos(60)
 };
 
 class Colorer
