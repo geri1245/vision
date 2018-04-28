@@ -15,7 +15,6 @@ class InputReader
 public:
 
     InputReader()  = default;
-    ~InputReader() = default;
     InputReader(const std::string &filename_, int size = 40000);
     
     std::vector<Point3D> get_points();
@@ -34,7 +33,6 @@ class DirInputReader
 public:
 
     DirInputReader()  = default;
-    ~DirInputReader() = default;
     DirInputReader(
         const std::experimental::filesystem::path &path_,
         const std::string &filename_);

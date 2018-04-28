@@ -19,6 +19,8 @@ std::vector<Point3D> InputReader::get_points()
     {
         ret.push_back(p);
     }
+
+    in.close();
     return ret;
 }
 

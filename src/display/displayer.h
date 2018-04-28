@@ -61,7 +61,7 @@ private:
 
 	void read_colors();
 
-	int num_points, points_to_draw;
+	int num_points, points_to_draw, frame_num = 0;
 	float alpha;
 	bool is_over, is_paused;
 	Uint32 prev_tick;

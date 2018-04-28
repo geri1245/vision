@@ -56,6 +56,9 @@ Point3D operator+ (const Point3D &lhs, const Point3D &rhs);
 Point3D operator- (const Point3D &lhs, const Point3D &rhs);
 bool    operator==(const Point3D &lhs, const Point3D &rhs);
 
+bool 	operator< (const Point3D &lhs, const Point3D &rhs);
+bool 	operator> (const Point3D &lhs, const Point3D &rhs);
+
 Point3D operator* (const Point3D &lhs, float rhs);
 Point3D operator/ (const Point3D &lhs, float rhs);
 Point3D operator+ (const Point3D &lhs, float rhs);

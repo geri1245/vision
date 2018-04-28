@@ -92,18 +92,14 @@ namespace
 		float y_diff = max.y - min.y;
 		Point3D diff{ max - min };
 		Point3D norm_diff{ normalize_xz(diff) };
-		std::cout << "points: " << max << min << norm_diff;
 		
 		//If the z difference is big enough, we can use it, else use x diff
-		//float z_diff = max.z - min.z;
-		//Point3D diff{ z_diff > 0.3 ? z_diff : max.x - min.x };
 		double rotation = acos(norm_diff.x);
 		if(norm_diff.z < 0)
 			rotation *= -1;
 
-		//rotation -= M_PI / 30.0f;
 		float scale = is_z_too_small ? abs(diff.x) : abs(diff.z);
-		std::cout << scale << "\n";
+		
 		float x_trans = is_z_too_small ? max.x : min.x;
 		float z_trans = is_z_too_small ? -max.z : -min.z;
 		
@@ -209,14 +205,14 @@ void Displayer::next_frame()
 	if(num_points != 0) //We only change the displayed points if the frame is not empty
 	{
 		//Detecting planes
-		planes = find_plane(frame_points, 5000, 0.002, 60);
+		//planes = find_plane(frame_points, 5000, 0.002, 60);
 		
 		frame_vertices.clear();
 
 		for( int i = 0; i < num_points; ++i )
 		{
 			const Point3D &p = frame_points[i];
-			const Color &c   = colors[i];
+			const Color &c   = {255, 255, 255};//colors[i];
 			//if(p.y < 0.4 && p.y > -0.55)
 			frame_vertices.push_back(
 				Vertex{ 
@@ -295,6 +291,10 @@ void Displayer::update()
 
 		next_frame();
 		is_over = !input_reader.step();
+		++frame_num;
+		std::cout << 
+			input_reader.get_current_file() << 
+			"   " << frame_num << "\n";
 	}
 }
 
@@ -302,7 +302,7 @@ void Displayer::draw_cube(const glm::mat4 &world_transform)
 {
 	glUseProgram( program.program_id() );
 	
-	alpha = 0.1f;
+	alpha = 0.8f;
 	glUniform1f(alpha_loc, alpha);
 
 	MVP = camera.GetViewProj() * world_transform;
@@ -350,18 +350,24 @@ void Displayer::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	alpha = 1.0f;
-	glUniform1f(alpha_loc, alpha);
 	draw_points(glm::mat4());
 
-	//draw_cube(glm::translate(glm::vec3(0.5, 0, -0.4)));
-	for(const auto &plane : planes)
+	draw_cube(
+		glm::translate(glm::vec3(-5, -0.4, -12))
+	);
+	draw_cube(
+		glm::translate(glm::vec3(2, -0.4, 10))
+	);
+
+	draw_rectangle(glm::translate(glm::vec3(1, 0, -1)));
+
+	/*for(const auto &plane : planes)
 	{
 		if(plane.size() != 0)
 			draw_rectangle(
 				find_rotation(plane)
 			);
-	}
+	}*/
 }
 
 //Event handling:
