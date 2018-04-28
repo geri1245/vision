@@ -11,6 +11,7 @@
 #include "../util/input.h"
 #include "../util/debug.hpp"
 #include "../gpu/cpu_ransac_prep.h"
+#include "../gpu/car_detection.h"
 
 
 namespace
@@ -200,6 +201,8 @@ void Displayer::next_frame()
 	frame_points = input_reader.next(); //Read points
 	num_points = frame_points.size();
 
+	car_points = detect_cars(frame_points);
+
 	read_colors();
 
 	if(num_points != 0) //We only change the displayed points if the frame is not empty
@@ -352,14 +355,19 @@ void Displayer::render()
 
 	draw_points(glm::mat4());
 
-	draw_cube(
-		glm::translate(glm::vec3(-5, -0.4, -12))
+	/*draw_cube(
+		glm::translate(glm::vec3(0.3, -0.4, 1.1))
 	);
 	draw_cube(
-		glm::translate(glm::vec3(2, -0.4, 10))
+		glm::translate(glm::vec3(-0.9, -0.4, -0.6))
 	);
 
-	draw_rectangle(glm::translate(glm::vec3(1, 0, -1)));
+	draw_rectangle(glm::translate(glm::vec3(1, 0, -1)));*/
+
+	for(const auto &p : car_points)
+	{
+		draw_cube( glm::translate(glm::vec3(p.x, p.y, -p.z)) );
+	}
 
 	/*for(const auto &plane : planes)
 	{

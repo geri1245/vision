@@ -67,6 +67,7 @@ private:
 	Uint32 prev_tick;
 
 	std::vector<Point3D> frame_points;
+	std::vector<Point3D> car_points;
 	std::vector<Vertex>  frame_vertices;
 	std::vector<Color>   colors;
 	std::vector < std::vector<Point3D> > planes;
