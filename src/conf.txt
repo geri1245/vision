@@ -4,4 +4,4 @@ lidar1.col
 6
 colors no
 planes no
-cars yes
+cars no

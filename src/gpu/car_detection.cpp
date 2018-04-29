@@ -21,6 +21,7 @@ Point3D get_coords(const Index &ind, const Point3D &min, float cell_size)
     };
 }
 
+//not currently in use, an alternative method for car detection
 bool check_and_set_neighbors(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
 {
     int max = grid.at(ind.row, ind.col);
