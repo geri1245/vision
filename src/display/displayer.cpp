@@ -145,14 +145,14 @@ void Displayer::init_cube()
 	std::vector<Vertex> cube_vertices;
 	cube_vertices.reserve(8);
 	
-	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
-	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.3f, 0.f, 0.f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3(0.3f, 0.1f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3(0.3f, 0.2f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.3f, 0.3f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(0.3f, 0.4f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3(0.3f, 0.5f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3(0.3f, 0.6f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(0.3f, 0.7f, 0.4f) } );
+	cube_vertices.push_back( Vertex{ glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(0.3f, 0.8f, 0.4f) } );
 
 	//Cube index buffer
 	GLushort cube_indices[]=
@@ -182,10 +182,10 @@ void Displayer::init_rectangle()
 	std::vector<Vertex> rectangle_vertices;
 	rectangle_vertices.reserve(4);
 	
-	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,     0, 0), glm::vec3(0.f, 0.f, 0.2f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,     0, 0), glm::vec3(0.f, 0.f, 0.2f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,  1.0f, 0), glm::vec3(0.f, 0.f, 0.2f) } );
-	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,  1.0f, 0), glm::vec3(0.f, 0.f, 0.2f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,     0, 0), glm::vec3(0.7f,  0.f,  0.f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,     0, 0), glm::vec3( 0.f,  0.f, 0.7f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3( 1.0f,  1.0f, 0), glm::vec3( 0.f, 0.7f,  0.f) } );
+	rectangle_vertices.push_back( Vertex{ glm::vec3(    0,  1.0f, 0), glm::vec3(0.7f, 0.7f, 0.7f) } );
 
 	program.generate_vao_vbo<Vertex>(
 		rectangle_vaoID, 
@@ -201,21 +201,26 @@ void Displayer::next_frame()
 	frame_points = input_reader.next(); //Read points
 	num_points = frame_points.size();
 
-	car_points = detect_cars(frame_points);
+	if(display_cars)
+	{
+		car_points = detect_cars(frame_points);	
+	}
 
-	read_colors();
+	if(display_colors)
+		read_colors();
 
 	if(num_points != 0) //We only change the displayed points if the frame is not empty
 	{
 		//Detecting planes
-		//planes = find_plane(frame_points, 5000, 0.002, 60);
+		if(display_planes)
+			planes = find_plane(frame_points, 5000, 0.002, 60);
 		
 		frame_vertices.clear();
 
 		for( int i = 0; i < num_points; ++i )
 		{
 			const Point3D &p = frame_points[i];
-			const Color &c   = {255, 255, 255};//colors[i];
+			const Color &c   = display_colors ? colors[i] : Color{255, 255, 255};
 			//if(p.y < 0.4 && p.y > -0.55)
 			frame_vertices.push_back(
 				Vertex{ 
@@ -247,6 +252,26 @@ void Displayer::read_conf_file()
 		  in_files_name 	 >>
 		  in_color_file_name >>
 		  num_of_cams;
+	
+	std::string tmp;
+
+	in >> tmp >> tmp;
+	if(tmp == "y" || tmp == "Y" || tmp == "true" || tmp == "yes" || tmp == "igen")
+	{
+		display_colors = true;
+	}
+
+	in >> tmp >> tmp;
+	if(tmp == "y" || tmp == "Y" || tmp == "true" || tmp == "yes" || tmp == "igen")
+	{
+		display_planes = true;
+	}
+
+	in >> tmp >> tmp;
+	if(tmp == "y" || tmp == "Y" || tmp == "true" || tmp == "yes" || tmp == "igen")
+	{
+		display_cars = true;
+	}
 
 	assert(in_files_path != "");
 	assert(in_files_name != "");
@@ -303,9 +328,10 @@ void Displayer::update()
 
 void Displayer::draw_cube(const glm::mat4 &world_transform)
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUseProgram( program.program_id() );
 	
-	alpha = 0.8f;
+	alpha = 0.6f;
 	glUniform1f(alpha_loc, alpha);
 
 	MVP = camera.GetViewProj() * world_transform;
@@ -314,6 +340,8 @@ void Displayer::draw_cube(const glm::mat4 &world_transform)
 	glBindVertexArray(cube_vaoID);
 	glDrawElements(GL_TRIANGLES, 6 * 6, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Displayer::draw_rectangle(const glm::mat4 &world_transform)
@@ -364,18 +392,26 @@ void Displayer::render()
 
 	draw_rectangle(glm::translate(glm::vec3(1, 0, -1)));*/
 
-	for(const auto &p : car_points)
+	if(display_cars)
 	{
-		draw_cube( glm::translate(glm::vec3(p.x, p.y, -p.z)) );
+		for(const auto &p : car_points)
+		{
+			draw_cube( 
+				glm::translate(glm::vec3(p.x, p.y, -p.z)) *
+				glm::scale(glm::vec3(2)) );
+		}
 	}
 
-	/*for(const auto &plane : planes)
+	if(display_planes)	
 	{
-		if(plane.size() != 0)
-			draw_rectangle(
-				find_rotation(plane)
-			);
-	}*/
+		for(const auto &plane : planes)
+		{
+			if(plane.size() != 0)
+				draw_rectangle(
+					find_rotation(plane)
+				);
+		}
+	}
 }
 
 //Event handling:

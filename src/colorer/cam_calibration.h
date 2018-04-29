@@ -45,7 +45,7 @@ void read_mat3(std::istream &in, glm::mat3 &m);
 void print_mat3(std::ostream &os, const glm::mat3 &m);
 
 template <typename T>
-std::istream& read_vec(std::istream &in, T &vec, int size)
+inline std::istream& read_vec(std::istream &in, T &vec, int size)
 {
     for(int i = 0; i < size; ++i)
     {
@@ -56,13 +56,13 @@ std::istream& read_vec(std::istream &in, T &vec, int size)
 }
 
 template <typename T>
-std::ostream& print_vec(std::ostream &os, const T &vec, int size)
+inline std::ostream& print_vec(std::ostream &os, const T &vec, int size)
 {
     for(int i = 0; i < size; ++i)
     {
-        std::cout << vec[i] << " ";
+        os << vec[i] << " ";
     }
-    std::cout << "\n";
+    os << "\n";
 
     return os;
 }

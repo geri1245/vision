@@ -21,10 +21,10 @@ Point3D get_coords(const Index &ind, const Point3D &min, float cell_size)
     };
 }
 
-bool check_and_set_neighbors(RolledGrid &grid, int thresh, Index &ind)
+bool check_and_set_neighbors(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
 {
     int max = grid.at(ind.row, ind.col);
-    if(max < thresh) //The current cell's value is smaller than the threshhold 
+    if(max < lower_thresh || max > upper_thresh) //The current cell's value is smaller than the threshhold 
         return false;
 
     int good_neighbors = 0;
@@ -45,7 +45,7 @@ bool check_and_set_neighbors(RolledGrid &grid, int thresh, Index &ind)
     for(int i = 0; i < 8; ++i)
     {
         current = grid.at(neighbors[i]);
-        if(current > thresh) //Same col
+        if(current > lower_thresh && current < upper_thresh) //Same col
         {
             ++good_neighbors;
             if(current > max)
@@ -53,49 +53,75 @@ bool check_and_set_neighbors(RolledGrid &grid, int thresh, Index &ind)
                 ind = neighbors[i];
                 max = current;
             }
-            grid.at(neighbors[i]) = 0; //We don't want to count it again
+            grid.at(neighbors[i]) = 70; //We don't want to count it again
         }
     }
 
-    if(good_neighbors > 0)
+    if(good_neighbors > 1)
     {
         return true;
     }
     return false;
 }
 
-std::vector<Point3D> detect_cars(const std::vector<Point3D> &points)
-{/*
-    constexpr int frame = 447;
-    DirInputReader ir;
-    ir.set_path("../../data1", "lidar1.xyz");
+bool check_and_set_neighbors2(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
+{
+    int max = grid.at(ind.row, ind.col);
+    if(max < lower_thresh) //The current cell's value is smaller than the threshhold 
+        return false;
+
+    int sum = 0;
+    int current;
+
+    for(int i = ind.row - 2; i < ind.row + 3; ++i)
+    {
+        for(int j = ind.col - 2; j < ind.col + 3; ++j)
+        {
+            current = grid.at(i, j);
+            sum += current;
+            
+            if(current > max)
+            {
+                max = current;
+                ind = {i, j};
+            }
+        }
+    }
     
-    for(int i = 0; i < frame; ++i)
-        ir.step();
+    if(sum > lower_thresh && sum < upper_thresh)
+    {
+        for(int i = ind.row - 2; i < ind.row + 3; ++i)
+        {
+            for(int j = ind.col - 2; j < ind.col + 3; ++j)
+            {
+                grid.at(i, j) = 0;
+            }
+        }
+        return true;
+    }
+    return false;
+}
 
-    std::vector<Point3D> points{ ir.next() };
-*/
-    constexpr Point3D min{-5, -0.55, -12};
-    constexpr Point3D max{3, 0.4, 10};
-    constexpr float cell_size = 1.0;
-    constexpr int thresh = 150;
+std::vector<Point3D> detect_cars(const std::vector<Point3D> &points)
+{
+    //Parameters for car detection
+    //Point3Ds specify the range of search
+    constexpr Point3D min{-10, -0.55, -20};
+    constexpr Point3D max{4, 0.4, 20};
+    
+    constexpr int lower_thresh = 50;
+    constexpr int upper_thresh = 800;
 
-    std::cout << get_coords(get_index(min, min, cell_size), min, cell_size);
-    std::cout << get_coords(get_index(max, min, cell_size), min, cell_size);
-
+    constexpr float cell_size = 0.5;
     constexpr int height = (max.z - min.z) / cell_size;
     constexpr int width  = (max.x - min.x) / cell_size;
 
     RolledGrid grid( height, width );
-    /*grid.at(
-        get_index( {-0.55, 0, -0.4}, min, cell_size)
-    ) = 9999;
-*/
+
     for(const auto &p : points)
     {
-        if(    p > min && p < max &&
-           !(( p.x < 0.3 && p.x > -0.9 ) &&
-            (  p.z < 1.1 && p.z > -0.6 ) ) 
+        if(    p > min && p < max
+           
           )
             ++grid.at( get_index(p, min, cell_size) );
     }
@@ -111,7 +137,7 @@ std::vector<Point3D> detect_cars(const std::vector<Point3D> &points)
         for(int j = 1; j < width - 2; ++j)
         {
             ind = {i, j};
-            if(check_and_set_neighbors(grid, thresh, ind))
+            if(check_and_set_neighbors2(grid, lower_thresh, upper_thresh, ind))
             {
                 car_indices.push_back(ind);
             }
@@ -122,14 +148,12 @@ std::vector<Point3D> detect_cars(const std::vector<Point3D> &points)
 
     for(const auto &ind : car_indices)
     {
-        car_points.push_back( 
+        car_points.push_back(
             { 
                 get_coords(ind, min, cell_size)
             } 
         );
     }
-
-    //grid.print();
 
     return std::move(car_points);
 }

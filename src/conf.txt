@@ -1,4 +1,7 @@
 ../data1
-lidar2.xyz
-lidar2.col
+lidar1.xyz
+lidar1.col
 6
+colors no
+planes no
+cars yes

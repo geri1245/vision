@@ -64,6 +64,7 @@ private:
 	int num_points, points_to_draw, frame_num = 0;
 	float alpha;
 	bool is_over, is_paused;
+	bool display_colors = false, display_planes = false, display_cars = false;
 	Uint32 prev_tick;
 
 	std::vector<Point3D> frame_points;
