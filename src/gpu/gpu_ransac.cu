@@ -173,15 +173,14 @@ int get_points_close_to_plane(
     //Start of meaningful work
     //*****************
 
-
     plane_points.clear();
     plane_points.reserve(15);
     gpu_results.resize(15);
 
-    std::cout << "\nNext Frame \n";
-
     for(int i = 0; i < max_num_of_planes; ++i)
     {
+        //We count how many points are within epsilon distance from
+        //each plane
         gpu_count_close_points<<<iter_num / num_of_threads, num_of_threads>>>(
             gpu_points, gpu_randoms, gpu_valid_points, 
             num_of_points, epsilon, gpu_num_of_close_points);
@@ -212,6 +211,7 @@ int get_points_close_to_plane(
                    cudaMemcpyHostToDevice);
 
         //Set the indices of points of the current plane as not valid
+        //so we don't find the exact same plane again
         const int thread_num = num_of_close_points < 256 ? 256 : 512;
         set_to_false<<<1, thread_num>>>(
             gpu_valid_points, gpu_indices, num_of_close_points);

@@ -213,7 +213,7 @@ void Displayer::next_frame()
 	{
 		//Detecting planes
 		if(display_planes)
-			planes = find_plane(frame_points, 5000, 0.002, 60);
+			planes = find_plane(frame_points, 5120, 0.002, 60);
 		
 		frame_vertices.clear();
 
@@ -308,8 +308,13 @@ void Displayer::clean()
 
 void Displayer::update()
 {
-	float delta = ( SDL_GetTicks() - prev_tick ) / 1000.0f;
-	camera.Update(delta);
+	Uint32 delta = SDL_GetTicks() - prev_tick;
+	if(delta < 33)
+	{
+		SDL_Delay(33 - delta); //We cap at 30 FPS
+	}
+	delta = SDL_GetTicks() - prev_tick;
+	camera.Update(delta / 1000.0);
 	prev_tick = SDL_GetTicks();
 
 	if ( !is_paused && !is_over )
@@ -320,9 +325,6 @@ void Displayer::update()
 		next_frame();
 		is_over = !input_reader.step();
 		++frame_num;
-		std::cout << 
-			input_reader.get_current_file() << 
-			"   " << frame_num << "\n";
 	}
 }
 
@@ -406,6 +408,14 @@ void Displayer::render()
 
 	if(ImGui::Begin("Controls"))
 	{
+		if(ImGui::CollapsingHeader("Help"))
+		{
+			ImGui::Text("Press Space to pause!");
+			ImGui::Text("Press Escape to quit!");
+		}
+
+		ImGui::Separator();
+
 		ImGui::Checkbox("Colors", &display_colors);
 		ImGui::Spacing();
 		ImGui::Checkbox("Planes", &display_planes);
@@ -427,10 +437,9 @@ void Displayer::render()
 				is_paused = !is_paused;
 			}
 		}
-		
-		if(ImGui::Button("Exit"))
-		{
-		}
+		ImGui::Spacing();
+		const std::string current_file = input_reader.get_current_file(); 
+		ImGui::Text("Current file: %s", current_file.c_str());
 	}
 	ImGui::End();
 }
