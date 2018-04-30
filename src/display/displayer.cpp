@@ -234,7 +234,6 @@ void Displayer::next_frame()
 		{
 			const Point3D &p = frame_points[i];
 			const Color &c   = display_colors ? colors[i] : Color{255, 255, 255};
-			//if(p.y < 0.4 && p.y > -0.55)
 			frame_vertices.push_back(
 				Vertex{ 
 					{p.x, p.y, -p.z}, 
@@ -419,6 +418,11 @@ void Displayer::render()
 		}
 		ImGui::Spacing();
 		ImGui::Checkbox("Cars",   &display_cars);
+		if(display_cars)
+		{
+			ImGui::SliderInt("Lower threshhold", &car_detection_lower_thresh, 40, 100);
+			ImGui::SliderInt("Upper threshhold", &car_detection_upper_thresh, 500, 1200);
+		}
 		ImGui::Spacing();
 		
 		if(is_paused)
@@ -440,6 +444,8 @@ void Displayer::render()
 		ImGui::Text("Current file: %s", current_file.c_str());
 	}
 	ImGui::End();
+
+	ImGui::ShowTestWindow();
 }
 
 //Event handling:
