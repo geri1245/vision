@@ -2,7 +2,7 @@
 #define GPU_GPU_RANSAC_CUH
 
 #include <vector>
-#include "../util/point_raw.h"
+#include "../input/point_raw.h"
 
 int get_points_close_to_plane(
     int iter_num,

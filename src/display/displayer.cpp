@@ -6,10 +6,10 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include "../3rd/imgui/imgui.h"
 
 #include "displayer.h"
-#include "../util/input.h"
-#include "../util/debug.hpp"
+#include "../input/input.h"
 #include "../gpu/cpu_ransac_prep.h"
 #include "../gpu/car_detection.h"
 
@@ -383,15 +383,6 @@ void Displayer::render()
 
 	draw_points(glm::mat4());
 
-	/*draw_cube(
-		glm::translate(glm::vec3(0.3, -0.4, 1.1))
-	);
-	draw_cube(
-		glm::translate(glm::vec3(-0.9, -0.4, -0.6))
-	);
-
-	draw_rectangle(glm::translate(glm::vec3(1, 0, -1)));*/
-
 	if(display_cars)
 	{
 		for(const auto &p : car_points)
@@ -412,33 +403,68 @@ void Displayer::render()
 				);
 		}
 	}
+
+	if(ImGui::Begin("Controls"))
+	{
+		ImGui::Checkbox("Colors", &display_colors);
+		ImGui::Spacing();
+		ImGui::Checkbox("Planes", &display_planes);
+		ImGui::Spacing();
+		ImGui::Checkbox("Cars",   &display_cars);
+		ImGui::Spacing();
+		
+		if(is_paused)
+		{
+			if(ImGui::Button("Resume"))
+			{
+				is_paused = !is_paused;
+			}
+		}
+		else
+		{
+			if(ImGui::Button("Pause"))
+			{
+				is_paused = !is_paused;
+			}
+		}
+		
+		if(ImGui::Button("Exit"))
+		{
+		}
+	}
+	ImGui::End();
 }
 
 //Event handling:
 
 void Displayer::handle_event(SDL_Event ev)
 {
+	bool is_mouse_captured = ImGui::GetIO().WantCaptureMouse;
+	bool is_keyboard_captured = ImGui::GetIO().WantCaptureKeyboard;
 	switch (ev.type)
-			{
-			case SDL_KEYDOWN:
-				key_down(ev.key);
-				break;
-			case SDL_KEYUP:
-				key_up(ev.key);
-				break;
-			case SDL_MOUSEMOTION:
-				mouse_move(ev.motion);
-				break;
-			case SDL_WINDOWEVENT:
-				if ( ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED )
-				{
-					resize_window(ev.window.data1, ev.window.data2);
-				}
-				break;
-			}
+	{
+	case SDL_KEYDOWN:
+		if (!is_keyboard_captured)
+			key_down(ev.key);
+		break;
+	case SDL_KEYUP:
+		if (!is_keyboard_captured)
+			key_up(ev.key);
+		break;
+	case SDL_MOUSEMOTION:
+		if (!is_mouse_captured)
+			mouse_move(ev.motion);
+		break;
+	case SDL_WINDOWEVENT:
+		if ( ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED )
+		{
+			resize_window(ev.window.data1, ev.window.data2);
+		}
+		break;
+	}
 }
 
-void Displayer::key_down(SDL_KeyboardEvent& key)
+void Displayer::key_down(const SDL_KeyboardEvent& key)
 {
 	if (key.keysym.sym == SDLK_SPACE)
 	{
@@ -447,12 +473,12 @@ void Displayer::key_down(SDL_KeyboardEvent& key)
 	camera.KeyboardDown(key);
 }
 
-void Displayer::key_up(SDL_KeyboardEvent& key)
+void Displayer::key_up(const SDL_KeyboardEvent& key)
 {
 	camera.KeyboardUp(key);
 }
 
-void Displayer::mouse_move(SDL_MouseMotionEvent& mouse)
+void Displayer::mouse_move(const SDL_MouseMotionEvent& mouse)
 {
 	camera.MouseMove(mouse);
 }

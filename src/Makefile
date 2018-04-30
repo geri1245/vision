@@ -14,13 +14,19 @@ cus = $(shell find -not -path "./test/*" -name '*.cu')
 objects := $(cpps:%.cpp=%.o)
 cuobjects := $(cus:%.cu=%.o)
 
+imgui_files = $(shell find -name ../3rd/imgui/*.cpp)
+imgui_objs := $(cpps:%.cpp=%.o)
+
 
 .PHONY : all
-all : $(objects) $(hpps) $(cuobjects)
+all : $(objects) $(hpps) $(cuobjects) $(imgui_objects)
 	$(gpucc) -dlink -o link.o $(cuobjects) $(gpuflags) $(gpulibs)
-	$(cc) $(objects) $(cuobjects) $(hpps) link.o -o main $(libs) $(gpulibs) $(cflags)
+	$(cc) $(objects) $(cuobjects) $(imgui_objects) $(hpps) link.o -o main $(libs) $(gpulibs) $(cflags)
 
 $(objects) : %.o : %.cpp
+	$(cc) -c $< -o $@ $(libs) $(cflags)
+
+$(imgui_objects) : %.o : %.cpp
 	$(cc) -c $< -o $@ $(libs) $(cflags)
 
 $(cuobjects) : %.o : %.cu
@@ -33,7 +39,7 @@ test :
 
 .PHONY : clean
 clean :
-	-rm -f input/*.o util/*.o test/*.o display/*.o gpu/*.o *.o main
+	-rm -f input/*.o input/*.o test/*.o display/*.o gpu/*.o *.o 3rd/imgui/*.o main
 
 .PHONY: rebuild
 rebuild : clean all

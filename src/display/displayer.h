@@ -9,8 +9,8 @@
 #include <SDL2/SDL_opengl.h>
 #include <glm/glm.hpp>
 
-#include "../util/point.h"
-#include "../util/input.h"
+#include "../input/point.h"
+#include "../input/input.h"
 #include "gCamera.h"
 #include "program.hpp"
 #include "color.h"
@@ -46,9 +46,9 @@ private:
 	void next_frame();
 	
 //Events:	
-	void key_down(SDL_KeyboardEvent& ev);
-	void key_up(SDL_KeyboardEvent& ev);
-	void mouse_move(SDL_MouseMotionEvent& ev);
+	void key_down(const SDL_KeyboardEvent& ev);
+	void key_up(const SDL_KeyboardEvent& ev);
+	void mouse_move(const SDL_MouseMotionEvent& ev);
 	void resize_window(int width, int height);
 
 	void read_conf_file();

@@ -2,7 +2,7 @@
 #define GPU_CPU_MATH_H
 
 #include <vector>
-#include "../util/point.h"
+#include "../input/point.h"
 
 
 int max_index(const std::vector<int> &vec);

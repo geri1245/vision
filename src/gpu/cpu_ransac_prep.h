@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../util/point.h" 
+#include "../input/point.h" 
 
 std::vector < std::vector<Point3D> > find_plane(
     const std::vector<Point3D> &points, 

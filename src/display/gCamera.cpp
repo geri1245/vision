@@ -81,7 +81,7 @@ void gCamera::Resize(int width, int height)
 	matViewProj = matProj * viewMatrix;
 }
 
-void gCamera::KeyboardDown(SDL_KeyboardEvent& key)
+void gCamera::KeyboardDown(const SDL_KeyboardEvent& key)
 {
 	switch ( key.keysym.sym )
 	{
@@ -108,7 +108,7 @@ void gCamera::KeyboardDown(SDL_KeyboardEvent& key)
 	}
 }
 
-void gCamera::KeyboardUp(SDL_KeyboardEvent& key)
+void gCamera::KeyboardUp(const SDL_KeyboardEvent& key)
 {
 	switch ( key.keysym.sym )
 	{
@@ -131,7 +131,7 @@ void gCamera::KeyboardUp(SDL_KeyboardEvent& key)
 	}
 }
 
-void gCamera::MouseMove(SDL_MouseMotionEvent& mouse)
+void gCamera::MouseMove(const SDL_MouseMotionEvent& mouse)
 {
 	if ( mouse.state & SDL_BUTTON_LMASK )
 	{

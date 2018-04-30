@@ -1,7 +1,7 @@
 #ifndef GPU_GPU_MATH_CUH
 #define GPU_GPU_MATH_CUH
 
-#include "../util/point_raw.h"
+#include "../input/point_raw.h"
 
 //Cross product of float vectors
 __device__ void gpu_cross_vec3(float *u, float *v, float *res);

@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../util/point.h"
+#include "../input/point.h"
 
 std::vector<Point3D> detect_cars(const std::vector<Point3D> &points);
 

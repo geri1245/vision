@@ -3,7 +3,7 @@ cflags = -std=c++17 -O2 -Wall -Wextra
 libs = -lstdc++fs -lopencv_core -lopencv_highgui
 
 cpps = $(shell find -name '*.cpp')
-cpps += ../util/input.cpp ../util/directory.cpp ../util/point.cpp
+cpps += ../input/input.cpp ../input/directory.cpp ../input/point.cpp
 objects := $(cpps:%.cpp=%.o)
 
 .PHONY : all

@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "cpu_ransac_prep.h"
-#include "../util/input.h"
+#include "../input/input.h"
 #include "gpu_ransac.cuh"
 #include "cpu_math.h"
 

@@ -1,5 +1,5 @@
-#ifndef UTIL_CAM_CALIB_H 
-#define UTIL_CAM_CALIB_H 
+#ifndef COLORER_CAM_CALIB_H 
+#define COLORER_CAM_CALIB_H 
 
 #include <iostream>
 #include <optional>
@@ -8,7 +8,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../util/point.h"
+#include "../input/point.h"
 
 struct MatVec
 {

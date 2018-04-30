@@ -5,6 +5,8 @@
 #include <GL/glext.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include "../3rd/imgui/imgui.h"
+#include "../3rd/imgui/imgui_impl_sdl_gl3.h"
 
 #include <iostream>
 #include <sstream>
@@ -58,6 +60,11 @@ int init_display()
                   << std::endl;
         return 1;
     }
+
+	//Init ImGui with the created window
+	auto imgui_context = ImGui::CreateContext();
+	ImGui::SetCurrentContext(imgui_context);
+	ImGui_ImplSdlGL3_Init(win);
 
 	SDL_GLContext context = SDL_GL_CreateContext(win);
     if (context == nullptr)
@@ -117,6 +124,8 @@ int init_display()
 	while (!quit)
 	{
 		//Propagating events to the application
+		ImGui_ImplSdlGL3_ProcessEvent(&ev);
+		
 		while ( SDL_PollEvent(&ev) )
 		{
 			switch(ev.type)
@@ -132,14 +141,19 @@ int init_display()
             displayer.handle_event(ev);
         }
 
+		ImGui_ImplSdlGL3_NewFrame(win);
+
 		displayer.update();
 		displayer.render();
+		ImGui::Render();
+		ImGui_ImplSdlGL3_RenderDrawData(ImGui::GetDrawData());
 
 		SDL_GL_SwapWindow(win);
 	}
 
     displayer.clean();
 
+	ImGui::DestroyContext(imgui_context);
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow( win );
 

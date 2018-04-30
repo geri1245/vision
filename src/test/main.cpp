@@ -5,9 +5,9 @@
 #include <glm/glm.hpp>
 
 #include "../3rd/catch.hpp" 
-#include "../util/point.h"
-#include "../util/input.h"
-#include "../util/cam_calibration.h"
+#include "../input/point.h"
+#include "../input/input.h"
+#include "../colorer/cam_calibration.h"
 
 TEST_CASE( "Testing Point3D class.", "[Point3D]" )
 {

@@ -2,8 +2,8 @@
 #include "car_detection.h"
 
 //Temporary
-#include "../util/input.h"
-#include "../util/point.h"
+#include "../input/input.h"
+#include "../input/point.h"
 
 Index get_index(const Point3D &coord, const Point3D &min, float cell_size)
 {
