@@ -40,6 +40,9 @@ private:
 	std::string in_color_file_name;
 	int num_of_cams = 6;
 
+	int plane_iterations, plane_threshhold;
+	float plane_epsilon;
+	int car_detection_lower_thresh, car_detection_upper_thresh;
 	const GLfloat point_size = 8.0f;
 
 	void set_ogl();

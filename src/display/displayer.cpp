@@ -113,11 +113,15 @@ namespace
 
 Displayer::Displayer()
 {
-	vaoID     = 0;
-	vboID     = 0;
-
 	is_paused = false;
 	is_over   = false;
+
+	plane_iterations = 5120;
+	plane_threshhold = 60;
+	plane_epsilon = 0.002;
+
+	car_detection_lower_thresh = 50;
+	car_detection_upper_thresh = 800;
 
 	prev_tick = SDL_GetTicks();
 }
@@ -203,7 +207,12 @@ void Displayer::next_frame()
 
 	if(display_cars)
 	{
-		car_points = detect_cars(frame_points);	
+		car_points = 
+			detect_cars(
+				frame_points,
+				car_detection_lower_thresh,
+				car_detection_upper_thresh
+			);	
 	}
 
 	if(display_colors)
@@ -213,7 +222,11 @@ void Displayer::next_frame()
 	{
 		//Detecting planes
 		if(display_planes)
-			planes = find_plane(frame_points, 5120, 0.002, 60);
+			planes = find_plane(
+				frame_points, 
+				plane_iterations, 
+				plane_epsilon,
+				plane_threshhold);
 		
 		frame_vertices.clear();
 
@@ -253,26 +266,6 @@ void Displayer::read_conf_file()
 		  in_color_file_name >>
 		  num_of_cams;
 	
-	std::string tmp;
-
-	in >> tmp >> tmp;
-	if(tmp == "y" || tmp == "Y" || tmp == "true" || tmp == "yes" || tmp == "igen")
-	{
-		display_colors = true;
-	}
-
-	in >> tmp >> tmp;
-	if(tmp == "y" || tmp == "Y" || tmp == "true" || tmp == "yes" || tmp == "igen")
-	{
-		display_planes = true;
-	}
-
-	in >> tmp >> tmp;
-	if(tmp == "y" || tmp == "Y" || tmp == "true" || tmp == "yes" || tmp == "igen")
-	{
-		display_cars = true;
-	}
-
 	assert(in_files_path != "");
 	assert(in_files_name != "");
 	assert(in_color_file_name != "");
@@ -419,6 +412,11 @@ void Displayer::render()
 		ImGui::Checkbox("Colors", &display_colors);
 		ImGui::Spacing();
 		ImGui::Checkbox("Planes", &display_planes);
+		if(display_planes)
+		{
+			ImGui::SliderInt("Iterations", &plane_iterations, 2560, 10240);
+			ImGui::SliderFloat("Epsilon", &plane_epsilon, 0.001, 0.1);
+		}
 		ImGui::Spacing();
 		ImGui::Checkbox("Cars",   &display_cars);
 		ImGui::Spacing();

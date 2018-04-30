@@ -7,7 +7,7 @@
 
 std::vector < std::vector<Point3D> > find_plane(
     const std::vector<Point3D> &points, 
-    int iter_num = 5000, float epsilon = 0.015,
-    int threshhold = 190);
+    int iter_num = 5120, float epsilon = 0.002,
+    int threshhold = 60);
 
 #endif

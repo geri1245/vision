@@ -103,16 +103,16 @@ bool check_and_set_neighbors2(RolledGrid &grid, int lower_thresh, int upper_thre
     return false;
 }
 
-std::vector<Point3D> detect_cars(const std::vector<Point3D> &points)
+std::vector<Point3D> detect_cars(
+    const std::vector<Point3D> &points,
+    int lower_thresh,
+    int upper_thresh)
 {
     //Parameters for car detection
     //Point3Ds specify the range of search
     constexpr Point3D min{-10, -0.55, -20};
     constexpr Point3D max{4, 0.4, 20};
     
-    constexpr int lower_thresh = 50;
-    constexpr int upper_thresh = 800;
-
     constexpr float cell_size = 0.5;
     constexpr int height = (max.z - min.z) / cell_size;
     constexpr int width  = (max.x - min.x) / cell_size;

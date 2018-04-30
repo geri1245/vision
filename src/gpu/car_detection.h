@@ -5,6 +5,9 @@
 
 #include "../input/point.h"
 
-std::vector<Point3D> detect_cars(const std::vector<Point3D> &points);
+std::vector<Point3D> detect_cars(
+    const std::vector<Point3D> &points,
+    int lower_thresh = 50,
+    int upper_thresh = 800);
 
 #endif
