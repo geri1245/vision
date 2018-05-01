@@ -126,13 +126,13 @@ void Colorer::find_colors()
 int main()
 {
     Colorer colorer;
-    std::string directory_path, calibration_name; 
+    std::string directory_path, calibration_name, tmp; 
     std::string in_file_name, out_file_name;
     std::ifstream in{ "conf.txt" };
-    in >> 
-        directory_path >> 
-        calibration_name >>
-        in_file_name >>
+    in >> tmp >>
+        directory_path >> tmp >> 
+        calibration_name >> tmp >>
+        in_file_name >> tmp >>
         out_file_name;
 
     colorer.set_path(

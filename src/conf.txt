@@ -1,7 +1,3 @@
-../data1
-lidar1.xyz
-lidar1.col
-6
-colors no
-planes no
-cars no
+datapath: ../data1
+point_file_name: lidar1.xyz
+color_file_name: lidar1.col

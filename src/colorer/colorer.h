@@ -10,7 +10,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <glm/glm.hpp>
 
-#include "../util/input.h"
+#include "../input/input.h"
 #include "cam_calibration.h"
 
 struct SelectCamera

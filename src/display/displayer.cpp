@@ -259,11 +259,11 @@ void Displayer::read_colors()
 
 void Displayer::read_conf_file()
 {
+	std::string tmp;
 	std::ifstream in{ "conf.txt" };
-	in >> in_files_path 	 >>
-		  in_files_name 	 >>
-		  in_color_file_name >>
-		  num_of_cams;
+	in >> tmp >> in_files_path 	 >>
+		  tmp >> in_files_name 	 >>
+		  tmp >> in_color_file_name;
 	
 	assert(in_files_path != "");
 	assert(in_files_name != "");
@@ -444,8 +444,6 @@ void Displayer::render()
 		ImGui::Text("Current file: %s", current_file.c_str());
 	}
 	ImGui::End();
-
-	ImGui::ShowTestWindow();
 }
 
 //Event handling:

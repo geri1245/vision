@@ -38,7 +38,6 @@ private:
 	std::string in_files_path;
 	std::string in_files_name;
 	std::string in_color_file_name;
-	int num_of_cams = 6;
 
 	int plane_iterations, plane_threshhold;
 	float plane_epsilon;
