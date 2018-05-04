@@ -65,7 +65,7 @@ bool DirInputReader::step()
     return true;
 }
 
-std::vector<Point3D> DirInputReader::next()
+std::vector<Point3D> DirInputReader::get_data()
 {
     InputReader ir{};
     ir.set_filename( 

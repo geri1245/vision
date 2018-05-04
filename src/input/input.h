@@ -24,7 +24,6 @@ private:
 
     int size = 40000;
     std::string filename;
-    std::string texture_name;
     std::fstream in;
 };
 
@@ -42,7 +41,7 @@ public:
         const std::string &filename_);
     
     bool step();
-    std::vector<Point3D> next();
+    std::vector<Point3D> get_data();
 
     std::string get_current_file();
 

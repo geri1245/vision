@@ -150,7 +150,7 @@ void Displayer::init_rectangle()
 
 void Displayer::next_frame()
 {
-	frame_points = input_reader.next(); //Read points
+	frame_points = input_reader.get_data(); //Read points
 	last_file = input_reader.get_current_file();
 	num_points = frame_points.size();
 
