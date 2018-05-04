@@ -34,7 +34,6 @@ struct ImageCalibration
 
 struct CamCalibration
 {
-    CamCalibration();    
     explicit CamCalibration(int size);    
 
     std::vector<ImageCalibration> image_calibrations;

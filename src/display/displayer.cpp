@@ -22,75 +22,20 @@ namespace
 		return {p.x / sqr, 0, p.z / sqr};
 	}
 
-	//Finds the maximal and minimal z values, stores the
-	//x values for these points, and finds the absolute
-	//max and min y coords
-	void max_z_y_diff(
-		const std::vector<Point3D> &plane_points, 
-		Point3D &min, Point3D &max)
-	{	
-		min = plane_points[0];
-		max = plane_points[0];
-
-		for(const auto &p : plane_points)
-		{
-			if(p.y < min.y)
-				min.y = p.y;
-			if(p.y > max.y)
-				max.y = p.y;
-			if(p.z < min.z)
-			{			
-				min.z = p.z;
-				min.x = p.x;
-			}			
-			if(p.z > max.z)
-			{
-				max.z = p.z;
-				max.x = p.x;
-			}
-		}
-	}
-	
-	void max_x_y_diff(
-		const std::vector<Point3D> &plane_points, 
-		Point3D &min, Point3D &max)
-	{	
-		min = plane_points[0];
-		max = plane_points[0];
-
-		for(const auto &p : plane_points)
-		{
-			if(p.y < min.y)
-				min.y = p.y;
-			if(p.y > max.y)
-				max.y = p.y;
-			if(p.x < min.x)
-			{			
-				min.x = p.x;
-				min.z = p.z;
-			}			
-			if(p.x > max.x)
-			{
-				max.x = p.x;
-				max.z = p.z;
-			}
-		}
-	}
-
-	glm::mat4 find_rotation(const std::vector<Point3D> &plane_points)
+	glm::mat4 find_rotation(std::vector<Point3D> &plane_points)
 	{
 		Point3D min, max;
-		max_z_y_diff(plane_points, min, max);
-		bool is_z_too_small = false;
+		std::sort(plane_points.begin(), plane_points.end(), ComparePointByZAndX());
+		bool is_z_too_small = 
+			plane_points[plane_points.size() - 4].z - 
+			plane_points[3].z < 1;
 		
-		//If the z coords are too close, we take the x coordinates
-		if(max.z - min.z < 1)
-		{
-			max_x_y_diff(plane_points, min, max);
-			is_z_too_small = true;
-		}
+		if(is_z_too_small)
+			std::sort(plane_points.begin(), plane_points.end(), ComparePointByXAndZ());
 
-		float y_diff = max.y - min.y;
+		min = plane_points[3];
+		max = plane_points[plane_points.size() - 4];
+
 		Point3D diff{ max - min };
 		Point3D norm_diff{ normalize_xz(diff) };
 		
@@ -105,13 +50,15 @@ namespace
 		float z_trans = is_z_too_small ? -max.z : -min.z;
 		
 		return 
-			glm::translate(glm::vec3(x_trans, min.y, z_trans)) *
+			glm::translate(glm::vec3(x_trans, -0.5, z_trans)) *
 			glm::rotate<float>(rotation, glm::vec3(0, 1, 0)) *
-			glm::scale(glm::vec3(scale > 7 ? 7 : scale, y_diff / 2.0f, 1));
+			glm::scale(glm::vec3(scale > 7 ? 7 : scale, 5 / 2.0f, 1));
 	}
+
 }
 
-Displayer::Displayer()
+Displayer::Displayer() :
+	cam_calibration(6)
 {
 	is_paused = false;
 	is_over   = false;
@@ -261,11 +208,13 @@ void Displayer::read_conf_file()
 {
 	std::string tmp;
 	std::ifstream in{ "conf.txt" };
-	in >> tmp >> in_files_path 	 >>
-		  tmp >> in_files_name 	 >>
+	in >> tmp >> in_files_path 	       >>
+		  tmp >> calibration_file_name >>
+		  tmp >> in_files_name 	       >>
 		  tmp >> in_color_file_name;
 	
 	assert(in_files_path != "");
+	assert(calibration_file_name != "");
 	assert(in_files_name != "");
 	assert(in_color_file_name != "");
 }
@@ -278,6 +227,9 @@ bool Displayer::init()
 	init_rectangle();
 
 	input_reader.set_path(in_files_path, in_files_name);
+	std::ifstream in{ in_files_path + "/" + calibration_file_name };
+	in >> cam_calibration;
+	std::cout << cam_calibration;
 
 	next_frame();
 
@@ -389,7 +341,7 @@ void Displayer::render()
 
 	if(display_planes)	
 	{
-		for(const auto &plane : planes)
+		for(auto &plane : planes)
 		{
 			if(plane.size() != 0)
 				draw_rectangle(

@@ -11,6 +11,7 @@
 
 #include "../input/point.h"
 #include "../input/input.h"
+#include "../colorer/cam_calibration.h"
 #include "gCamera.h"
 #include "program.hpp"
 #include "color.h"
@@ -36,6 +37,7 @@ private:
 	const std::string frag_shader_path = "display/shaders/myFrag.frag";
 	
 	std::string in_files_path;
+	std::string calibration_file_name;
 	std::string in_files_name;
 	std::string in_color_file_name;
 
@@ -82,6 +84,7 @@ private:
 	GLuint MVP_loc, alpha_loc;
 	glm::mat4 MVP;
 
+	CamCalibration cam_calibration;
 	Program program;
 	DirInputReader input_reader;
 	gCamera camera;

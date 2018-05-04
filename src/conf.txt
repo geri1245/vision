@@ -1,3 +1,4 @@
 datapath: ../data1
+calibration_file_name: calibration.txt
 point_file_name: lidar1.xyz
 color_file_name: lidar1.col
