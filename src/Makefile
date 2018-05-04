@@ -2,7 +2,7 @@ cc = g++
 gpucc = nvcc
 gpuflags = -ccbin=clang++-3.8 -rdc=true -Xcompiler -fPIC -arch=sm_35
 gpulibs = -lcudart -lcudadevrt
-libs = -lSDL2 -lSDL2main -lGL -lGLU -lglut -lGLEW -lstdc++fs
+libs = -lSDL2 -lSDL2main -lGL -lGLU -lglut -lGLEW -lstdc++fs -lopencv_core -lopencv_highgui
 cflags = -Wall -Wextra -std=c++17 -O2
 
 SOURCEDIR = .

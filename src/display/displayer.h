@@ -12,6 +12,7 @@
 #include "../input/point.h"
 #include "../input/input.h"
 #include "../colorer/cam_calibration.h"
+#include "car_framer.h"
 #include "gCamera.h"
 #include "program.hpp"
 #include "color.h"
@@ -40,6 +41,7 @@ private:
 	std::string calibration_file_name;
 	std::string in_files_name;
 	std::string in_color_file_name;
+	std::string last_file;
 
 	int plane_iterations, plane_threshhold;
 	float plane_epsilon;
@@ -87,6 +89,7 @@ private:
 	CamCalibration cam_calibration;
 	Program program;
 	DirInputReader input_reader;
+	CarFramer car_framer;
 	gCamera camera;
 
 	int mouse_x;

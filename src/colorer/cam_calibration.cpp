@@ -3,6 +3,17 @@
 #include <string>
 #include <fstream>
 
+Point3D CameraSelector::normalize(const Point3D &p)
+{
+    //We don't care about y coordinate
+    float square_sum_root = sqrt(p.x * p.x + p.z * p.z);
+
+    return {
+        p.x / square_sum_root,
+        0,
+        p.z / square_sum_root};
+}
+
 void read_mat3(std::istream &in, glm::mat3 &m)
 {
     for(int i = 0; i < 9; ++i)

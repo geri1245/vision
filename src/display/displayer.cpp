@@ -58,7 +58,8 @@ namespace
 }
 
 Displayer::Displayer() :
-	cam_calibration(6)
+	cam_calibration(6),
+	car_framer(6)
 {
 	is_paused = false;
 	is_over   = false;
@@ -150,6 +151,7 @@ void Displayer::init_rectangle()
 void Displayer::next_frame()
 {
 	frame_points = input_reader.next(); //Read points
+	last_file = input_reader.get_current_file();
 	num_points = frame_points.size();
 
 	if(display_cars)
@@ -229,7 +231,7 @@ bool Displayer::init()
 	input_reader.set_path(in_files_path, in_files_name);
 	std::ifstream in{ in_files_path + "/" + calibration_file_name };
 	in >> cam_calibration;
-	std::cout << cam_calibration;
+	car_framer.init(cam_calibration);
 
 	next_frame();
 
@@ -374,8 +376,15 @@ void Displayer::render()
 		{
 			ImGui::SliderInt("Lower threshhold", &car_detection_lower_thresh, 40, 100);
 			ImGui::SliderInt("Upper threshhold", &car_detection_upper_thresh, 500, 1200);
+			ImGui::Spacing();
+			if(ImGui::Button("Display framed image"))
+			{
+				if(!car_points.empty())
+					car_framer.display_frame(car_points, last_file);
+			}
 		}
-		ImGui::Spacing();
+
+		ImGui::Spacing();		
 		
 		if(is_paused)
 		{

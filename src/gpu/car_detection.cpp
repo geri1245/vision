@@ -16,7 +16,7 @@ Point3D get_coords(const Index &ind, const Point3D &min, float cell_size)
     return 
     {
         min.x + ind.col * cell_size,
-        -0.2,
+        -0.5,
         min.z + ind.row * cell_size
     };
 }

@@ -13,46 +13,6 @@
 #include "../input/input.h"
 #include "cam_calibration.h"
 
-struct SelectCamera
-{
-    int operator()(const Point3D &p)
-    {
-        Point3D norm_p = normalize(p);
-        double x = norm_p.x;
-        double z = norm_p.z;
-        int cam = 0;
-        
-        
-        if(x > 0)
-        {
-            if(x > cosa)
-                cam = 0;
-            else if(z > 0)
-                cam = 5;
-            else
-                cam = 3;
-        }
-
-        else if(x <= 0)
-        {
-            if(x < -cosa)
-                cam = 2;
-            else if(z > 0)
-                cam = 4;
-            else 
-                cam = 1;
-        }
-
-        return cam;
-    }
-
-private:
-
-    Point3D normalize(const Point3D &p);
-
-    float cosa = cos(M_PI * 4.5 / 18.0f); //cos(60)
-};
-
 class Colorer
 {
 public:
@@ -84,7 +44,7 @@ private:
 
     DirInputReader input_reader;
     CamCalibration cam_calibration;
-    SelectCamera camera_selector;
+    CameraSelector camera_selector;
 
     std::vector<cv::Mat> camera_images;
     std::vector<Point3D> points;

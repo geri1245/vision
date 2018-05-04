@@ -1,17 +1,6 @@
 #include "colorer.h"
 #include <opencv2/opencv.hpp>
 
-Point3D SelectCamera::normalize(const Point3D &p)
-{
-    //We don't care about y coordinate
-    float square_sum_root = sqrt(p.x * p.x + p.z * p.z);
-
-    return {
-        p.x / square_sum_root,
-        0,
-        p.z / square_sum_root};
-}
-
 std::ostream& operator<<(std::ofstream &out, const std::vector<cv::Vec3b> &colors)
 {
     for(const auto &color : colors)
