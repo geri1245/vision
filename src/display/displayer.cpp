@@ -154,6 +154,7 @@ void Displayer::next_frame()
 	last_file = input_reader.get_current_file();
 	num_points = frame_points.size();
 
+	//Detecting cars
 	if(display_cars)
 	{
 		car_points = 
