@@ -50,30 +50,33 @@ void Colorer::next_frame()
 {
     if(keep_going)
     {
-        points = input_reader.next();
+        points = input_reader.get_data();
     }
 }
 
-void Colorer::set_path(
-    const std::string &path_,
-    const std::string &in_filename_,
-    const std::string &out_filename_,
-    const std::string &cam_calibration_file_name_)
+void Colorer::set_path(const std::string &conf_path)
 {
-    input_reader.set_path(path_, in_filename_);
-    path = path_;
-    in_filename  = in_filename_;
-    out_filename = out_filename_;
-    cam_calibration_file_name = cam_calibration_file_name_;
+    std::ifstream in{ conf_path };
+    std::string tmp;
+    in >> tmp >>
+        path >> tmp >> 
+        cam_calibration_file_name >> tmp >>
+        in_filename >> tmp >>
+        out_filename;
+    in.close();
+    input_reader.set_path(path, in_filename);
+
+    assert(path != "");
+    assert(in_filename != "");
+    assert(cam_calibration_file_name != "");
 
     in.open(path + "/" + cam_calibration_file_name);
-	in >> cam_calibration;
+	in >> tmp >> cam_calibration;
 }
 
 void Colorer::print_colors()
 {
     out.open(input_reader.get_current_file() + "/" + out_filename);
-    std::cout << input_reader.get_current_file() << "\n";
     out << colors;
     out.close();
 }
@@ -110,28 +113,4 @@ void Colorer::find_colors()
         print_colors();
         keep_going = input_reader.step();
     }
-}
-
-int main()
-{
-    Colorer colorer;
-    std::string directory_path, calibration_name, tmp; 
-    std::string in_file_name, out_file_name;
-    std::ifstream in{ "conf.txt" };
-    in >> tmp >>
-        directory_path >> tmp >> 
-        calibration_name >> tmp >>
-        in_file_name >> tmp >>
-        out_file_name;
-
-    colorer.set_path(
-        directory_path,
-        in_file_name,
-        out_file_name,
-        calibration_name
-    );
-
-    colorer.find_colors();
-
-    return 0;
 }

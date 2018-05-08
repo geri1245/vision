@@ -22,7 +22,7 @@ namespace
 		return {p.x / sqr, 0, p.z / sqr};
 	}
 
-	glm::mat4 find_rotation(std::vector<Point3D> &plane_points)
+	glm::mat4 find_transformation(std::vector<Point3D> &plane_points)
 	{
 		Point3D min, max;
 		std::sort(plane_points.begin(), plane_points.end(), ComparePointByZAndX());
@@ -39,7 +39,6 @@ namespace
 		Point3D diff{ max - min };
 		Point3D norm_diff{ normalize_xz(diff) };
 		
-		//If the z difference is big enough, we can use it, else use x diff
 		double rotation = acos(norm_diff.x);
 		if(norm_diff.z < 0)
 			rotation *= -1;
@@ -172,7 +171,7 @@ void Displayer::next_frame()
 	{
 		//Detecting planes
 		if(display_planes)
-			planes = find_plane(
+			planes = find_planes(
 				frame_points, 
 				plane_iterations, 
 				plane_epsilon,
@@ -348,7 +347,7 @@ void Displayer::render()
 		{
 			if(plane.size() != 0)
 				draw_rectangle(
-					find_rotation(plane)
+					find_transformation(plane)
 				);
 		}
 	}

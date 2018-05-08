@@ -17,11 +17,7 @@ class Colorer
 {
 public:
     void set_path(
-        const std::string &path_,
-        const std::string &in_filename_,
-        const std::string &out_filename_,
-        const std::string &cam_calibration_file_name_
-        );
+        const std::string &conf_path);
     explicit Colorer(int num_of_cams = 6);
 
     void find_colors();

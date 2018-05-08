@@ -25,7 +25,7 @@ namespace
 }
 
 
-std::vector< std::vector<Point3D> > find_plane(
+std::vector< std::vector<Point3D> > find_planes(
     const std::vector<Point3D> &points, 
     int iter_num, float epsilon, int threshhold)
 {
