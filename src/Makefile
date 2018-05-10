@@ -21,7 +21,7 @@ imgui_objs := $(cpps:%.cpp=%.o)
 .PHONY : all
 all : $(objects) $(hpps) $(cuobjects) $(imgui_objects)
 	$(gpucc) -dlink -o link.o $(cuobjects) $(gpuflags) $(gpulibs)
-	$(cc) $(objects) $(cuobjects) $(imgui_objects) $(hpps) link.o -o main $(libs) $(gpulibs) $(cflags)
+	$(cc) $(objects) $(cuobjects) $(imgui_objects) $(hpps) link.o -o displayer $(libs) $(gpulibs) $(cflags)
 
 $(objects) : %.o : %.cpp
 	$(cc) -c $< -o $@ $(libs) $(cflags)
@@ -34,7 +34,7 @@ $(cuobjects) : %.o : %.cu
 
 .PHONY : clean
 clean :
-	-rm -f input/*.o test/*.o display/*.o object_detection/*.o planes/*.o *.o 3rd/imgui/*.o main
+	-rm -f input/*.o test/*.o display/*.o object_detection/*.o planes/*.o *.o 3rd/imgui/*.o displayer
 
 .PHONY: rebuild
 rebuild : clean all

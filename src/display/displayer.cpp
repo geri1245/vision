@@ -295,6 +295,7 @@ void Displayer::draw_cube(const glm::mat4 &world_transform)
 
 void Displayer::draw_rectangle(const glm::mat4 &world_transform)
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUseProgram( program.program_id() );
 	
 	alpha = 0.7f;
@@ -306,6 +307,7 @@ void Displayer::draw_rectangle(const glm::mat4 &world_transform)
 	glBindVertexArray(rectangle_vaoID);
 	glDrawArrays(GL_QUADS, 0, 4);
 	glBindVertexArray(0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Displayer::draw_points(const glm::mat4 &world_transform)

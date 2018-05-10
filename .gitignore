@@ -2,7 +2,7 @@ build/*
 *.o
 */*.o
 src/*/*.out
-main
+displayer
 src/colorer/colorer
 data*
 src/test/test
