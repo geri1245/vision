@@ -19,4 +19,7 @@ https://docs.opencv.org/2.4/doc/tutorials/introduction/linux_install/linux_insta
 openCV link libraries:
 -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs
 
+Cuda telepítése:
+...
+
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib

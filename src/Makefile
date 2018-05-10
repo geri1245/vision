@@ -32,14 +32,9 @@ $(imgui_objects) : %.o : %.cpp
 $(cuobjects) : %.o : %.cu
 	$(gpucc) -c $< -o $@ $(gpuflags) $(gpulibs)
 
-.PHONY : test
-test :
-	cd test; make
-	./test/test
-
 .PHONY : clean
 clean :
-	-rm -f input/*.o input/*.o test/*.o display/*.o gpu/*.o *.o 3rd/imgui/*.o main
+	-rm -f input/*.o test/*.o display/*.o object_detection/*.o planes/*.o *.o 3rd/imgui/*.o main
 
 .PHONY: rebuild
 rebuild : clean all

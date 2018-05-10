@@ -1,5 +1,5 @@
-#ifndef GPU_GRID_H
-#define GPU_GRID_H
+#ifndef OBJECT_DETECTION_GRID_H
+#define OBJECT_DETECTION_GRID_H
 
 #include <vector>
 #include <iostream>

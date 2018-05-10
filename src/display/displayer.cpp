@@ -10,8 +10,8 @@
 
 #include "displayer.h"
 #include "../input/input.h"
-#include "../gpu/cpu_ransac_prep.h"
-#include "../gpu/car_detection.h"
+#include "../planes/cpu_ransac_prep.h"
+#include "../object_detection/car_detection.h"
 
 
 namespace
@@ -27,14 +27,14 @@ namespace
 		Point3D min, max;
 		std::sort(plane_points.begin(), plane_points.end(), ComparePointByZAndX());
 		bool is_z_too_small = 
-			plane_points[plane_points.size() - 4].z - 
-			plane_points[3].z < 1;
+			plane_points[plane_points.size() - 7].z - 
+			plane_points[6].z < 1;
 		
 		if(is_z_too_small)
 			std::sort(plane_points.begin(), plane_points.end(), ComparePointByXAndZ());
 
-		min = plane_points[3];
-		max = plane_points[plane_points.size() - 4];
+		min = plane_points[6];
+		max = plane_points[plane_points.size() - 7];
 
 		Point3D diff{ max - min };
 		Point3D norm_diff{ normalize_xz(diff) };
@@ -51,7 +51,7 @@ namespace
 		return 
 			glm::translate(glm::vec3(x_trans, -0.5, z_trans)) *
 			glm::rotate<float>(rotation, glm::vec3(0, 1, 0)) *
-			glm::scale(glm::vec3(scale > 7 ? 7 : scale, 5 / 2.0f, 1));
+			glm::scale(glm::vec3(scale, 5 / 2.0f, 1));
 	}
 
 }
