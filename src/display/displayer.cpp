@@ -255,9 +255,10 @@ void Displayer::clean()
 void Displayer::update()
 {
 	Uint32 delta = SDL_GetTicks() - prev_tick;
-	if(delta < 33)
+	float frame_duration = 1000 / (float) max_frames;
+	if(delta < frame_duration)
 	{
-		SDL_Delay(33 - delta); //We cap at 30 FPS
+		SDL_Delay(frame_duration - delta); //We cap at 30 FPS
 	}
 	delta = SDL_GetTicks() - prev_tick;
 	camera.Update(delta / 1000.0);
@@ -360,17 +361,27 @@ void Displayer::render()
 			ImGui::Text("Press Escape to quit!");
 		}
 
+		ImGui::Spacing();
 		ImGui::Separator();
+		ImGui::Spacing();
 
 		ImGui::Checkbox("Colors", &display_colors);
+
 		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
 		ImGui::Checkbox("Planes", &display_planes);
 		if(display_planes)
 		{
 			ImGui::SliderInt("Iterations", &plane_iterations, 2560, 10240);
 			ImGui::SliderFloat("Epsilon", &plane_epsilon, 0.001, 0.1);
 		}
+		
 		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
 		ImGui::Checkbox("Cars",   &display_cars);
 		if(display_cars)
 		{
@@ -384,25 +395,34 @@ void Displayer::render()
 			}
 		}
 
+		ImGui::Spacing();
+		ImGui::Separator();
 		ImGui::Spacing();		
 		
-		if(is_paused)
+		if(ImGui::CollapsingHeader("Basic controls"))
 		{
-			if(ImGui::Button("Resume"))
+			ImGui::SliderInt("Max frames", &max_frames, 10, 60);
+			
+			ImGui::Spacing();		
+			
+			if(is_paused)
 			{
-				is_paused = !is_paused;
+				if(ImGui::Button("Resume"))
+				{
+					is_paused = !is_paused;
+				}
 			}
-		}
-		else
-		{
-			if(ImGui::Button("Pause"))
+			else
 			{
-				is_paused = !is_paused;
+				if(ImGui::Button("Pause"))
+				{
+					is_paused = !is_paused;
+				}
 			}
+			ImGui::Spacing();
+			const std::string current_file = input_reader.get_current_file(); 
+			ImGui::Text("Current file: %s", current_file.c_str());
 		}
-		ImGui::Spacing();
-		const std::string current_file = input_reader.get_current_file(); 
-		ImGui::Text("Current file: %s", current_file.c_str());
 	}
 	ImGui::End();
 }

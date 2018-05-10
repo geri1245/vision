@@ -46,7 +46,7 @@ private:
 	int plane_iterations, plane_threshhold;
 	float plane_epsilon;
 	int car_detection_lower_thresh, car_detection_upper_thresh;
-	const GLfloat point_size = 8.0f;
+	const GLfloat point_size = 10.0f;
 
 	void set_ogl();
 	void next_frame();
@@ -68,6 +68,7 @@ private:
 	void read_colors();
 
 	int num_points, points_to_draw, frame_num = 0;
+	int max_frames = 25;
 	float alpha;
 	bool is_over, is_paused;
 	bool display_colors = false, display_planes = false, display_cars = false;

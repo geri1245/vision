@@ -1,5 +1,5 @@
-#ifndef REPR_POINT_H
-#define REPR_POINT_H
+#ifndef INPUT_POINT_H
+#define INPUT_POINT_H
 
 #include <iostream>
 #include <fstream>

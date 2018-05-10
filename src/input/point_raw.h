@@ -1,11 +1,5 @@
-#ifndef UTIL_POINT_RAW_H
-#define UTIL_POINT_RAW_H
-
-#ifdef __CUDACC__
-#define CUDA_CALLABLE_MEMBER __host__ __device__
-#else
-#define CUDA_CALLABLE_MEMBER
-#endif
+#ifndef INPUT_POINT_RAW_H
+#define INPUT_POINT_RAW_H
 
 struct Point3D
 {

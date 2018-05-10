@@ -22,7 +22,7 @@ Point3D get_coords(const Index &ind, const Point3D &min, float cell_size)
 }
 
 //not currently in use, an alternative method for car detection
-bool check_and_set_neighbors(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
+/*bool check_and_set_neighbors(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
 {
     int max = grid.at(ind.row, ind.col);
     if(max < lower_thresh || max > upper_thresh) //The current cell's value is smaller than the threshhold 
@@ -63,9 +63,9 @@ bool check_and_set_neighbors(RolledGrid &grid, int lower_thresh, int upper_thres
         return true;
     }
     return false;
-}
+}*/
 
-bool check_and_set_neighbors2(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
+bool check_and_set_neighbors(RolledGrid &grid, int lower_thresh, int upper_thresh, Index &ind)
 {
     int max = grid.at(ind.row, ind.col);
     if(max < lower_thresh) //The current cell's value is smaller than the threshhold 
@@ -138,7 +138,7 @@ std::vector<Point3D> detect_cars(
         for(int j = 1; j < width - 2; ++j)
         {
             ind = {i, j};
-            if(check_and_set_neighbors2(grid, lower_thresh, upper_thresh, ind))
+            if(check_and_set_neighbors(grid, lower_thresh, upper_thresh, ind))
             {
                 car_indices.push_back(ind);
             }

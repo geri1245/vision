@@ -52,10 +52,12 @@ void CarFramer::display_frame(const std::vector<Point3D> &points, const std::str
                 current_image.at<cv::Vec3b>(j, x_start) = cv::Vec3b{0, 0, 255};
                 current_image.at<cv::Vec3b>(j, x_end) = cv::Vec3b{0, 0, 255};
             }
-        }
-        cv::imshow( "Display window", current_image );
 
-        cv::waitKey(0); 
+            cv::imshow( "Display window", current_image );
+
+            cv::waitKey(0); 
+        }
+        
     }
     cv::destroyWindow("Display window");
 }
