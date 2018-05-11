@@ -110,8 +110,8 @@ std::vector<Point3D> detect_cars(
 {
     //Parameters for car detection
     //Point3Ds specify the range of search
-    constexpr Point3D min{-10, -0.55, -20};
-    constexpr Point3D max{4, 0.4, 20};
+    constexpr Point3D min{-15, -0.55, -30};
+    constexpr Point3D max{6, 0.4, 30};
     
     constexpr float cell_size = 0.5;
     constexpr int height = (max.z - min.z) / cell_size;

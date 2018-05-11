@@ -87,7 +87,7 @@ void Displayer::set_ogl()
 
 	glEnable(GL_BLEND);	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Displayer::init_cube()
@@ -401,30 +401,27 @@ void Displayer::render()
 		ImGui::Separator();
 		ImGui::Spacing();		
 		
-		if(ImGui::CollapsingHeader("Basic controls"))
+		ImGui::SliderInt("Max frames", &max_frames, 10, 60);
+		
+		ImGui::Spacing();		
+		
+		if(is_paused)
 		{
-			ImGui::SliderInt("Max frames", &max_frames, 10, 60);
-			
-			ImGui::Spacing();		
-			
-			if(is_paused)
+			if(ImGui::Button("Resume"))
 			{
-				if(ImGui::Button("Resume"))
-				{
-					is_paused = !is_paused;
-				}
+				is_paused = !is_paused;
 			}
-			else
-			{
-				if(ImGui::Button("Pause"))
-				{
-					is_paused = !is_paused;
-				}
-			}
-			ImGui::Spacing();
-			const std::string current_file = input_reader.get_current_file(); 
-			ImGui::Text("Current file: %s", current_file.c_str());
 		}
+		else
+		{
+			if(ImGui::Button("Pause"))
+			{
+				is_paused = !is_paused;
+			}
+		}
+		ImGui::Spacing();
+		const std::string current_file = input_reader.get_current_file(); 
+		ImGui::Text("Current file: %s", current_file.c_str());
 	}
 	ImGui::End();
 }

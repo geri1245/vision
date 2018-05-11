@@ -99,7 +99,7 @@ void Colorer::find_colors()
             }
 
             cam_num = camera_selector(p);
-            glm::vec2 coords = cam_calibration.image_calibrations[cam_num].get_pixel_coords(p, 0);
+            glm::vec2 coords = cam_calibration.image_calibrations[cam_num].get_pixel_coords(p, 1);
             if(coords.x < 0 || coords.x > 1287 || coords.y < 0 || coords.y > 963)
             {
                 colors.push_back( {0, 0, 0} );
