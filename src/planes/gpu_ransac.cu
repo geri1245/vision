@@ -9,21 +9,6 @@
 #include "gpu_ransac.cuh"
 #include "cpu_math.h"
 
-__global__ void gpu_rand_ints(int *rand_nums, int max)
-{
-    int ind = blockIdx.x * blockDim.x + threadIdx.x;
-    curandState_t state;
-    curand_init(ind, 0, 0, &state);
-    rand_nums[ind] = curand(&state) % max;
-}
-
-__device__ int gpu_rand_int(int seed, int max)
-{
-    curandState_t state;
-    curand_init(seed, 0, 0, &state);
-    return curand(&state) % max;
-}
-
 __device__ int gpu_get_close_points_indices(
     int index1,
     int index2, 
@@ -54,9 +39,6 @@ __device__ int gpu_get_close_points_indices(
             (tmp.z > 0.3 || tmp.z < -1.1) &&
             gpu_distance_from_plane(tmp, coeffs, tmp_sqrt) < epsilon)
         {
-            //if(num_of_close_points < 150)
-            //close_points_indices[num_of_close_points] = 3;
-            
             ++num_of_close_points;
         }
     }

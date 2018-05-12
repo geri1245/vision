@@ -277,10 +277,10 @@ void Displayer::update()
 
 void Displayer::draw_cube(const glm::mat4 &world_transform)
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUseProgram( program.program_id() );
 	
-	alpha = 0.6f;
+	alpha = 0.3f;
 	glUniform1f(alpha_loc, alpha);
 
 	MVP = camera.GetViewProj() * world_transform;
@@ -290,15 +290,15 @@ void Displayer::draw_cube(const glm::mat4 &world_transform)
 	glDrawElements(GL_TRIANGLES, 6 * 6, GL_UNSIGNED_SHORT, 0);
 	glBindVertexArray(0);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Displayer::draw_rectangle(const glm::mat4 &world_transform)
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUseProgram( program.program_id() );
 	
-	alpha = 0.7f;
+	alpha = 0.3f;
 	glUniform1f(alpha_loc, alpha);
 
 	MVP = camera.GetViewProj() * world_transform;
@@ -307,7 +307,7 @@ void Displayer::draw_rectangle(const glm::mat4 &world_transform)
 	glBindVertexArray(rectangle_vaoID);
 	glDrawArrays(GL_QUADS, 0, 4);
 	glBindVertexArray(0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Displayer::draw_points(const glm::mat4 &world_transform)

@@ -1,4 +1,4 @@
-#include "gpu_math.cuh"
+#include "../planes/gpu_math.cuh"
 #include <iostream>
 
 __global__ void gpu_add_points_test(Point3D a, Point3D b, Point3D *c)

@@ -72,7 +72,6 @@ std::vector<Point3D> DirInputReader::get_data()
         filename == "" ? 
         files[current] :
         files[current] + "/" + filename );
-        //files[current] + "/frame_" + files[current].substr(9, 4) + filename ); // Experimental for data2
     
     return ir.get_points();
 }
