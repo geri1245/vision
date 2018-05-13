@@ -2,9 +2,6 @@
 #include <vector>
 #include <algorithm>
 
-#include <curand.h>
-#include <curand_kernel.h>
-
 #include "gpu_math.cuh"
 #include "gpu_ransac.cuh"
 #include "cpu_math.h"

@@ -21,6 +21,7 @@ test : $(objects)
 gpu : $(gpu_deps)
 	$(gpucc) -c -o gpu_math_test.o $(gpudeps) gpu_math_test.cu $(gpuflags) $(gpulibs)
 	$(gpucc) -dlink -o link.o $(gpu_deps) gpu_math_test.o $(gpuflags) $(gpulibs)
+	$(cc) -o gpu_test link.o gpu_math_test.o $(gpu_deps) $(cflags) $(gpulibs) -std=c++11
 
 .PHONY : clean
 clean:

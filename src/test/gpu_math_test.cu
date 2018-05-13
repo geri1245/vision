@@ -1,5 +1,9 @@
 #include "../planes/gpu_math.cuh"
 #include <iostream>
+#include <vector>
+
+#include "../input/point_raw.h"
+#include "../input/point.h"
 
 __global__ void gpu_add_points_test(Point3D a, Point3D b, Point3D *c)
 {
@@ -111,31 +115,36 @@ int main()
     cudaFree(gpu_v);
     cudaFree(gpu_resu);
 
-    std::cout << "Cross product result:\n";
-    for(int i = 0; i < 3; ++i)
-    {
-        std::cout << resu[i] << " ";
-    }
+    //Cross product
+    assert( resu[0] == -3);  
+    assert( resu[1] == sqrtf(3));
+    assert( resu[2] == sqrtf(3));
 
-    std::cout << "\nPlane coeffs: \n";
+    std::cout << "Cross product passed.\n";
+
+    //Plane coefficients
+    float plane_coeffs_expected[4] = {4, -16, -4, -8};
     for(int i = 0; i < 4; ++i)
     {
-        std::cout << coeffs[i] << " ";
+        assert( coeffs[i] == plane_coeffs_expected[i]);
     }
+    std::cout << "Plane coeffs passed.\n";
 
-    std::cout << "\nMatrix multiplication result:\n";
+    //Matrix multiplication
+    float matrix_mult_expected[] = {35, 25, 41.5, 64, 21, 50, 35, 14.5, 34.5};
     for(int i = 0; i < 9; ++i)
     {
-        std::cout << resm[i] << " ";
+        assert( resm[i] == matrix_mult_expected[i]);
     }
+    std::cout << "Matrix multiplication passed.\n";
 
     //*****************************
     //Second part of test functions
     //*****************************
 
     //Point distance from plane test
-    Point3D point = (Point3D){2, 3, 1};
-    float coeffs_distance[4] = {1, -2, 3, -5};
+    Point3D point = (Point3D){0, 3, 6};
+    float coeffs_distance[4] = {2, 4, -4, -6};
     float *gpu_dist, *gpu_coeffs_distance, dist;
 
     cudaMalloc((void **)&gpu_dist, sizeof(float));
@@ -163,8 +172,8 @@ int main()
     gpu_mat_vec_mul_test<<<1, 1>>>(gpu_mat, gpu_vec, gpu_res_vec);
 
     //Dot product test
-    Point3D p_dot1 = (Point3D){2, 4.7, 10};
-    Point3D p_dot2 = (Point3D){50, 4, 1.14};
+    Point3D p_dot1 = (Point3D){2, 4.5, 10};
+    Point3D p_dot2 = (Point3D){50, 4, 1.1};
 
     float *gpu_dot_result, dot_result;
 
@@ -183,17 +192,23 @@ int main()
     cudaFree(gpu_res_vec);
     cudaFree(gpu_dot_result);
     
-    std::cout << "\nPoint distance from plane:\n" << dist;
+    //Point distance from plane
+    //source: http://onlinemschool.com/math/library/analytic_geometry/p_plane/
+    std::cout << dist;
+    assert(dist == 3);
+    std::cout << "Point distance from plane passed.\n";
 
-    std::cout << "\nMatrix vector multiplication result:\n";
+    //Matrix vector multiplication
+    float mat_vec_mult_expected[] = {53, 37, 88};
     for(int i = 0; i < 3; ++i)
     {
-        std::cout << res_vec[i] << " ";
+        assert( res_vec[i] == mat_vec_mult_expected[i]);
     }
+    std::cout << "Matrix vector multiplication passed.\n";
 
-    std::cout << "\nDot product result: " << dot_result;
-
-    std::cout << "\n";
+    //Dot product
+    assert(dot_result == 129);
+    std::cout << "Dot product passed.\n";
 
     return 0;
 }
