@@ -1,4 +1,4 @@
-data_path: ../../data1
+data_path: ../../data
 calibration_file_name: calibration.txt
 point_file_name: lidar2.xyz
 output_file_name: lidar2.col
